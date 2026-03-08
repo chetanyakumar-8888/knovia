@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { generateSummary } from "../services/groq";
 import { getSubjects, getChapters } from "../services/ncert";
+import { saveNote } from "../services/supabase";
 
 const Study = () => {
   const navigate = useNavigate();
@@ -31,6 +32,18 @@ const Study = () => {
       setError("Failed! Please try again.");
     }
     setLoading(false);
+  }
+
+  async function handleSaveNote() {
+    const res = await saveNote(
+      selectedChapter,
+      selectedSubject,
+      selectedClass,
+      result
+    );
+    if (res) {
+      alert("Notes saved to your profile! ✅");
+    }
   }
 
   return (
@@ -186,7 +199,10 @@ const Study = () => {
                   <FileQuestionIcon className="w-5 h-5" />
                   Generate Quiz from Notes
                 </button>
-                <button className="flex-1 px-6 py-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold transition-colors border border-white/10 flex items-center justify-center gap-2">
+                <button 
+                  onClick={handleSaveNote}
+                  className="flex-1 px-6 py-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold transition-colors border border-white/10 flex items-center justify-center gap-2"
+                >
                   <BookmarkIcon className="w-5 h-5" />
                   Save Notes to Profile
                 </button>

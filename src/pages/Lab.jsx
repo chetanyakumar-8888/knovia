@@ -8,30 +8,31 @@ const Lab = () => {
   const [showComingSoon, setShowComingSoon] = useState(false);
 
   // --- EXPERIMENT DATA ---
-  const experiments = [
+
+    const experiments = [
     // Physics
-    { id: '1', title: "Ohm's Law Circuit Simulator", subject: "Physics", desc: "Verify V=IR with an interactive circuit.", classLevel: '12' },
-    { id: '2', title: "Resistors in Series and Parallel", subject: "Physics", desc: "Calculate equivalent resistance.", classLevel: '12' },
-    { id: '3', title: "Projectile Motion Visualizer", subject: "Physics", desc: "Interactive trajectory analysis.", classLevel: '11' },
-    { id: '4', title: "Simple Pendulum", subject: "Physics", desc: "Measure gravity via oscillation.", classLevel: '11' },
-    { id: '5', title: "Lens and Focal Length", subject: "Physics", desc: "Determine focal length of convex lens.", classLevel: '12' },
-    { id: '6', title: "Wheatstone Bridge", subject: "Physics", desc: "Find unknown resistance.", classLevel: '12' },
-    { id: '7', title: "Potentiometer", subject: "Physics", desc: "Compare EMF of two cells.", classLevel: '12' },
-    { id: '8', title: "Refraction through Prism", subject: "Physics", desc: "Plot angle of deviation.", classLevel: '11' },
+    { id: '1', title: "Ohm's Law Circuit Simulator", subject: "Physics", desc: "Verify V=IR with an interactive circuit.", classLevel: '12', route: '/lab/ohms-law' },
+    { id: '2', title: "Resistors in Series and Parallel", subject: "Physics", desc: "Calculate equivalent resistance.", classLevel: '12', route: '/lab/resistors-series' },
+    { id: '3', title: "Projectile Motion Visualizer", subject: "Physics", desc: "Interactive trajectory analysis.", classLevel: '11', route: '/lab/projectile-motion' },
+    { id: '4', title: "Simple Pendulum", subject: "Physics", desc: "Measure gravity via oscillation.", classLevel: '11', route: '/lab/simple-pendulum' },
+    { id: '5', title: "Lens and Focal Length", subject: "Physics", desc: "Determine focal length of convex lens.", classLevel: '12', route: '/lab/lens-focal-length' },
+    { id: '6', title: "Wheatstone Bridge", subject: "Physics", desc: "Find unknown resistance.", classLevel: '12', route: '/lab/wheatstone-bridge' },
+    { id: '7', title: "Potentiometer", subject: "Physics", desc: "Compare EMF of two cells.", classLevel: '12', route: '/lab/potentiometer' },
+    { id: '8', title: "Refraction through Prism", subject: "Physics", desc: "Plot angle of deviation.", classLevel: '11', route: '/lab/refraction-prism' },
     
     // Chemistry
-    { id: '9', title: "Acid-Base Titration", subject: "Chemistry", desc: "Determine concentration via endpoint.", classLevel: '11' },
-    { id: '10', title: "Salt Analysis", subject: "Chemistry", desc: "Identify cations and anions.", classLevel: '12' },
-    { id: '11', title: "Chromatography", subject: "Chemistry", desc: "Separate plant pigments.", classLevel: '11' },
-    { id: '12', title: "Electrochemistry", subject: "Chemistry", desc: "Construct a galvanic cell.", classLevel: '12' },
-    { id: '13', title: "pH Testing", subject: "Chemistry", desc: "Test pH of various solutions.", classLevel: '11' },
-    { id: '14', title: "Chemical Reactions", subject: "Chemistry", desc: "Observe different reaction types.", classLevel: '11' },
+    { id: '9', title: "Acid-Base Titration", subject: "Chemistry", desc: "Determine concentration via endpoint.", classLevel: '11', route: '/lab/acid-base-titration' },
+    { id: '10', title: "Salt Analysis", subject: "Chemistry", desc: "Identify cations and anions.", classLevel: '12', route: '/lab/salt-analysis' },
+    { id: '11', title: "Chromatography", subject: "Chemistry", desc: "Separate plant pigments.", classLevel: '11', route: '/lab/chromatography' },
+    { id: '12', title: "Electrochemistry", subject: "Chemistry", desc: "Construct a galvanic cell.", classLevel: '12', route: '/lab/electrochemistry' },
+    { id: '13', title: "pH Testing", subject: "Chemistry", desc: "Test pH of various solutions.", classLevel: '11', route: '/lab/ph-testing' },
+    { id: '14', title: "Chemical Reactions", subject: "Chemistry", desc: "Observe different reaction types.", classLevel: '11', route: '/lab/chemical-reactions' },
     
     // Biology
-    { id: '15', title: "Osmosis Experiment", subject: "Biology", desc: "Potato osmometer demonstration.", classLevel: '11' },
-    { id: '16', title: "Photosynthesis Simulation", subject: "Biology", desc: "Effect of light intensity.", classLevel: '11' },
-    { id: '17', title: "Cell Division Mitosis and Meiosis", subject: "Biology", desc: "Stages of Mitosis and Meiosis.", classLevel: '11' },
-    { id: '18', title: "DNA Structure", subject: "Biology", desc: "Isolate DNA from plant material.", classLevel: '12' }
+    { id: '15', title: "Osmosis Experiment", subject: "Biology", desc: "Potato osmometer demonstration.", classLevel: '11', route: '/lab/osmosis' },
+    { id: '16', title: "Photosynthesis Simulation", subject: "Biology", desc: "Effect of light intensity.", classLevel: '11', route: '/lab/photosynthesis' },
+    { id: '17', title: "Cell Division Mitosis and Meiosis", subject: "Biology", desc: "Stages of Mitosis and Meiosis.", classLevel: '11', route: '/lab/cell-division' },
+    { id: '18', title: "DNA Structure", subject: "Biology", desc: "Isolate DNA from plant material.", classLevel: '12', route: '/lab/dna-structure' }
   ];
 
   // Filter Logic
@@ -41,9 +42,8 @@ const Lab = () => {
     return classMatch && subjectMatch;
   });
 
-  const handleStartExperiment = () => {
-    setShowComingSoon(true);
-    setTimeout(() => setShowComingSoon(false), 3000); // Hide toast after 3s
+  const handleStartExperiment = (route) => {
+    navigate(route);
   };
 
   // Badge Color Helper
@@ -195,7 +195,7 @@ const Lab = () => {
               </p>
 
               <button 
-                onClick={handleStartExperiment}
+                onClick={() => handleStartExperiment(exp.route)}
                 className="w-full py-4 rounded-xl bg-slate-800 hover:bg-purple-600 border border-white/5 hover:border-purple-500 text-white font-semibold transition-all flex justify-center items-center gap-2 group-hover:shadow-[0_0_20px_rgba(147,51,234,0.3)] relative z-10"
               >
                 Start Experiment

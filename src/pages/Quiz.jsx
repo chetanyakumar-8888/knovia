@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { generateQuiz } from "../services/groq";
+import { saveQuizResult } from "../services/supabase";
 
 const Quiz = () => {
   const navigate = useNavigate();
@@ -101,7 +102,7 @@ const Quiz = () => {
     }
   };
 
-  const handleNextQuestion = () => {
+  const handleNextQuestion = async () => {
     if (currentQuestion < quizQuestions.length - 1) {
       setCurrentQuestion(prev => prev + 1);
       setSelectedAnswer(null);
@@ -109,6 +110,17 @@ const Quiz = () => {
       setTimeLeft(60);
     } else {
       setStep('results');
+      try {
+        await saveQuizResult(
+          selectedSubject,
+          selectedChapter, 
+          selectedClass,
+          score,
+          quizQuestions.length
+        );
+      } catch (err) {
+        console.error("Failed to save quiz result:", err);
+      }
     }
   };
 
