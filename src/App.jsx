@@ -6,6 +6,8 @@ import Quiz from './pages/Quiz'
 import Lab from './pages/Lab'
 import Lecture from './pages/Lecture'
 import Profile from './pages/Profile'
+import Login from './pages/Login'
+import Signup from './pages/Signup'
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
         <Route path="/lab" element={<Lab />} />
         <Route path="/lecture" element={<Lecture />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/login" element={<Login />} />
+<Route path="/signup" element={<Signup />} />
       </Routes>
     </div>
   )
