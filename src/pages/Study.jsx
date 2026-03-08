@@ -1,33 +1,37 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { generateSummary } from "../services/groq";
+import { getSubjects, getChapters } from "../services/ncert";
 
 const Study = () => {
   const navigate = useNavigate();
   const [selectedClass, setSelectedClass] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedChapter, setSelectedChapter] = useState('');
-  const [isFetching, setIsFetching] = useState(false);
-  const [showContent, setShowContent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
 
-  const classes = ['Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'Class 11', 'Class 12'];
-  const subjects = ['Mathematics', 'Science', 'Social Science', 'English', 'Hindi'];
-  const chapters = {
-    Science: ['Chemical Reactions', 'Acids, Bases and Salts', 'Metals and Non-metals', 'Life Processes'],
-    Mathematics: ['Real Numbers', 'Polynomials', 'Quadratic Equations', 'Triangles']
-  };
+  const classes = ["6", "7", "8", "9", "10", "11", "12"];
 
-  const handleFetch = () => {
+  async function handleFetch() {
     if (!selectedClass || !selectedSubject || !selectedChapter) return;
     
-    setIsFetching(true);
-    setShowContent(false);
-    
-    // Simulate AI fetching content
-    setTimeout(() => {
-      setIsFetching(false);
-      setShowContent(true);
-    }, 2500);
-  };
+    setLoading(true);
+    setError(null);
+    setResult(null);
+    try {
+      const summary = await generateSummary(
+        selectedClass,
+        selectedSubject,
+        selectedChapter
+      );
+      setResult(summary);
+    } catch (err) {
+      setError("Failed! Please try again.");
+    }
+    setLoading(false);
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 font-sans selection:bg-purple-500/30 pb-20">
@@ -64,7 +68,7 @@ const Study = () => {
                     setSelectedClass(e.target.value);
                     setSelectedSubject('');
                     setSelectedChapter('');
-                    setShowContent(false);
+                    setResult(null);
                   }}
                   className="appearance-none w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-white pr-10 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all cursor-pointer"
                 >
@@ -84,13 +88,13 @@ const Study = () => {
                   onChange={(e) => {
                     setSelectedSubject(e.target.value);
                     setSelectedChapter('');
-                    setShowContent(false);
+                    setResult(null);
                   }}
                   disabled={!selectedClass}
                   className="appearance-none w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-white pr-10 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="" disabled>Select Subject</option>
-                  {subjects.map(s => <option key={s} value={s}>{s}</option>)}
+                  {(getSubjects(selectedClass) || []).map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
                 <ChevronDownIcon className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
               </div>
@@ -104,13 +108,13 @@ const Study = () => {
                   value={selectedChapter}
                   onChange={(e) => {
                     setSelectedChapter(e.target.value);
-                    setShowContent(false);
+                    setResult(null);
                   }}
                   disabled={!selectedSubject}
                   className="appearance-none w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-white pr-10 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="" disabled>Select Chapter</option>
-                  {(chapters[selectedSubject] || []).map(c => <option key={c} value={c}>{c}</option>)}
+                  {(getChapters(selectedClass, selectedSubject) || []).map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
                 <ChevronDownIcon className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
               </div>
@@ -119,10 +123,10 @@ const Study = () => {
 
           <button 
             onClick={handleFetch}
-            disabled={!selectedClass || !selectedSubject || !selectedChapter || isFetching}
+            disabled={!selectedClass || !selectedSubject || !selectedChapter || loading}
             className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold transition-all shadow-[0_0_20px_rgba(147,51,234,0.3)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {isFetching ? (
+            {loading ? (
               <>
                 <LoaderIcon className="w-5 h-5 animate-spin" />
                 <span>AI is analyzing NCERT...</span>
@@ -137,11 +141,17 @@ const Study = () => {
         </div>
 
         {/* Content Area */}
-        {showContent && (
+        {error && (
+          <div className="mb-8 p-4 bg-red-500/10 border border-red-500/50 rounded-xl text-red-500 flex items-center justify-center font-medium animate-[fade-in_0.3s_ease-out]">
+            {error}
+          </div>
+        )}
+
+        {result && (
           <div className="animate-[fade-in_0.5s_ease-out]">
             <div className="mb-8">
               <div className="flex items-center gap-2 text-sm text-purple-400 font-medium mb-2">
-                <span>{selectedClass}</span>
+                <span>Class {selectedClass}</span>
                 <span>•</span>
                 <span>{selectedSubject}</span>
               </div>
@@ -162,58 +172,15 @@ const Study = () => {
                   <BrainCircuitIcon className="w-5 h-5 text-purple-400" />
                   Quick Summary
                 </h3>
-                <p className="text-slate-300 leading-relaxed">
-                  This chapter explores the fundamental concepts of chemical reactions, where breaking and making of bonds between different atoms produces new substances. You will learn about chemical equations, balancing them, and various types of reactions including combination, decomposition, displacement, and oxidation-reduction (redox) reactions.
-                </p>
-              </div>
-
-              {/* Key Points */}
-              <div className="bg-slate-900/40 border border-white/5 rounded-2xl p-6">
-                <h3 className="text-xl font-semibold mb-4 text-slate-200 flex items-center gap-2">
-                  <ListIcon className="w-5 h-5 text-indigo-400" />
-                  Key Points to Remember
-                </h3>
-                <ul className="space-y-3">
-                  {[
-                    "A chemical reaction involves a chemical change where new substances with new properties are formed.",
-                    "Reactants are the substances that take part in the reaction, and products are the newly formed substances.",
-                    "The Law of Conservation of Mass states that mass can neither be created nor destroyed in a chemical reaction.",
-                    "To satisfy this law, all chemical equations must be balanced.",
-                    "Exothermic reactions release heat, while endothermic reactions absorb heat."
-                  ].map((point, idx) => (
-                    <li key={idx} className="flex items-start gap-3 text-slate-300">
-                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-2.5 shrink-0" />
-                      <span className="leading-relaxed">{point}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Important Terms */}
-              <div className="bg-slate-900/40 border border-white/5 rounded-2xl p-6">
-                <h3 className="text-xl font-semibold mb-4 text-slate-200 flex items-center gap-2">
-                  <BookTextIcon className="w-5 h-5 text-pink-400" />
-                  Important Terms
-                </h3>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  {[
-                    { term: "Precipitate", def: "An insoluble solid that emerges from a liquid solution." },
-                    { term: "Oxidation", def: "The addition of oxygen to a substance or removal of hydrogen." },
-                    { term: "Reduction", def: "The addition of hydrogen to a substance or removal of oxygen." },
-                    { term: "Corrosion", def: "The gradual destruction of materials (usually metals) by chemical reaction." }
-                  ].map((item, idx) => (
-                    <div key={idx} className="p-4 rounded-xl bg-slate-950/50 border border-white/5">
-                      <h4 className="font-medium text-pink-400 mb-1">{item.term}</h4>
-                      <p className="text-sm text-slate-400">{item.def}</p>
-                    </div>
-                  ))}
+                <div className="text-slate-300 leading-relaxed whitespace-pre-wrap">
+                  {result}
                 </div>
               </div>
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 pt-6 mt-6 border-t border-white/10">
                 <button 
-                  onClick={() => navigate('/quiz')}
+                  onClick={() => navigate('/quiz', { state: { selectedClass, selectedSubject, selectedChapter } })}
                   className="flex-1 px-6 py-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition-colors flex items-center justify-center gap-2"
                 >
                   <FileQuestionIcon className="w-5 h-5" />

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { generateQuiz } from "../services/groq";
 
 const Quiz = () => {
   const navigate = useNavigate();
@@ -10,28 +11,13 @@ const Quiz = () => {
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60);
+  const [quizQuestions, setQuizQuestions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const subject = "Science";
-  const chapter = "Chemical Reactions and Equations";
-
-  // Mock quiz data
-  const quizQuestions = [
-    {
-      question: "What is formed when magnesium burns in oxygen?",
-      options: ["Magnesium Hydroxide", "Magnesium Oxide", "Magnesium Carbonate", "Magnesium Sulphate"],
-      correctAnswer: 1, // index of Magnesium Oxide
-    },
-    {
-      question: "Which of the following is an endothermic process?",
-      options: ["Dilution of sulphuric acid", "Sublimation of dry ice", "Condensation of water vapours", "Respiration in human beings"],
-      correctAnswer: 1,
-    },
-    {
-      question: "What type of chemical reactions take place when electricity is passed through water?",
-      options: ["Displacement", "Combination", "Decomposition", "Double displacement"],
-      correctAnswer: 2,
-    }
-  ];
+  const location = useLocation();
+  const selectedClass = location.state?.selectedClass || "10";
+  const selectedSubject = location.state?.selectedSubject || "Science";
+  const selectedChapter = location.state?.selectedChapter || "Chemical Reactions and Equations";
 
   // Timer logic
   useEffect(() => {
@@ -50,13 +36,58 @@ const Quiz = () => {
     setIsAnswerRevealed(true);
   };
 
-  const handleStartQuiz = () => {
-    setStep('quiz');
-    setCurrentQuestion(0);
-    setScore(0);
-    setTimeLeft(60);
-    setSelectedAnswer(null);
-    setIsAnswerRevealed(false);
+  const handleStartQuiz = async () => {
+    setIsLoading(true);
+    try {
+      const responseText = await generateQuiz(selectedClass, selectedSubject, selectedChapter);
+      
+      let parsedData;
+      try {
+        parsedData = typeof responseText === 'string' ? JSON.parse(responseText) : responseText;
+      } catch (err) {
+        // Fallback robust json extraction from markdown
+        const match = responseText.match(/\[[\s\S]*\]/) || responseText.match(/\{[\s\S]*\}/);
+        if (match) {
+          parsedData = JSON.parse(match[0]);
+        } else {
+          throw new Error("Could not parse JSON from AI response");
+        }
+      }
+
+      let mcqs = Array.isArray(parsedData) ? parsedData : (parsedData.questions || parsedData.mcqs || []);
+      
+      if (mcqs && mcqs.length > 0) {
+        // Sanitize correctAnswers
+        const sanitizedMcqs = mcqs.map(q => {
+          let correctIdx = q.correctAnswer;
+          if (typeof correctIdx === 'string') {
+            const up = correctIdx.toUpperCase();
+            if (["A", "B", "C", "D"].includes(up)) correctIdx = ["A", "B", "C", "D"].indexOf(up);
+            else if (q.options?.includes(correctIdx)) correctIdx = q.options.indexOf(correctIdx);
+            else if (!isNaN(parseInt(correctIdx, 10))) correctIdx = parseInt(correctIdx, 10);
+          }
+          return {
+            ...q,
+            correctAnswer: (typeof correctIdx === 'number' && correctIdx >= 0 && correctIdx < q.options.length) ? correctIdx : 0
+          };
+        });
+
+        setQuizQuestions(sanitizedMcqs);
+        setStep('quiz');
+        setCurrentQuestion(0);
+        setScore(0);
+        setTimeLeft(60);
+        setSelectedAnswer(null);
+        setIsAnswerRevealed(false);
+      } else {
+        alert("Failed to generate valid quiz questions.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error generating quiz: " + error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSelectAnswer = (index) => {
@@ -116,9 +147,9 @@ const Quiz = () => {
             </div>
             
             <div className="flex items-center justify-center gap-2 text-sm text-purple-400 font-medium mb-3">
-              <span>{subject}</span>
+              <span>{selectedSubject}</span>
             </div>
-            <h1 className="text-3xl font-bold text-slate-100 mb-6">{chapter}</h1>
+            <h1 className="text-3xl font-bold text-slate-100 mb-6">{selectedChapter}</h1>
             
             <div className="flex flex-wrap justify-center gap-4 mb-10">
               <div className="px-4 py-2 rounded-xl bg-slate-950 border border-white/10 flex items-center gap-2">
@@ -152,10 +183,20 @@ const Quiz = () => {
 
             <button 
               onClick={handleStartQuiz}
-              className="w-full sm:w-auto px-10 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-lg transition-all shadow-[0_0_20px_rgba(147,51,234,0.3)] hover:scale-105 active:scale-95 flex items-center justify-center gap-2 mx-auto"
+              disabled={isLoading}
+              className="w-full sm:w-auto px-10 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-lg transition-all shadow-[0_0_20px_rgba(147,51,234,0.3)] hover:scale-105 active:scale-95 flex items-center justify-center gap-2 mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <PlayIcon className="w-5 h-5" />
-              Start Quiz
+              {isLoading ? (
+                <>
+                  <svg className="w-5 h-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                  Generating Quiz...
+                </>
+              ) : (
+                <>
+                  <PlayIcon className="w-5 h-5" />
+                  Start Quiz
+                </>
+              )}
             </button>
           </div>
         )}
