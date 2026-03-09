@@ -72,7 +72,7 @@ const Lab = () => {
       <nav className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center gap-6">
           <button 
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate(-1)}
             className="w-9 h-9 rounded-full bg-slate-900 border border-white/10 flex items-center justify-center hover:bg-slate-800 transition-colors group shrink-0"
           >
             <ArrowLeftIcon className="w-5 h-5 text-slate-400 group-hover:text-white transition-colors" />

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getQuizResults, getSavedNotes, deleteNote, getCurrentUser } from "../services/supabase";
 
 const Profile = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [quizResults, setQuizResults] = useState([]);
   const [savedNotes, setSavedNotes] = useState([]);
@@ -25,11 +27,10 @@ const Profile = () => {
   const handleDeleteNote = async (id) => {
     const success = await deleteNote(id);
     if (success) {
-      loadData(); // Refresh list after delete
+      loadData();
     }
   };
 
-  // Mock Data (remaining static parts)
   const activityFeed = [
     { id: 1, title: "Chemical Reactions", subject: "Chemistry", type: "Quiz", score: "9/10", time: "2 hours ago" },
     { id: 2, title: "Laws of Motion", subject: "Physics", type: "Study", time: "Yesterday, 4:30 PM" },
@@ -47,9 +48,8 @@ const Profile = () => {
     { day: "Sat", hours: 5.5 },
     { day: "Sun", hours: 4.5 }
   ];
-  const maxHours = Math.max(...weeklyData.map(d => d.hours)) + 1; // Chart scaling
+  const maxHours = Math.max(...weeklyData.map(d => d.hours)) + 1;
 
-  // Subject Badge Helper
   const getSubjectColor = (subject) => {
     switch (subject) {
       case 'Physics': return 'text-blue-400 bg-blue-400/10 border-blue-400/20';
@@ -69,35 +69,31 @@ const Profile = () => {
     );
   }
 
-  // Calculate stats from real data
   const totalQuizzes = quizResults?.length || 0;
-  const avgScoreCalc = totalQuizzes > 0 
-    ? Math.round(quizResults.reduce((acc, curr) => acc + (curr.score / curr.total_questions) * 100, 0) / totalQuizzes) 
+  const avgScoreCalc = totalQuizzes > 0
+    ? Math.round(quizResults.reduce((acc, curr) => acc + (curr.score / curr.total_questions) * 100, 0) / totalQuizzes)
     : 0;
 
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || "Student";
   const userInitials = userName.substring(0, 2).toUpperCase();
   const userClass = user?.user_metadata?.class ? `Class ${user.user_metadata.class}` : "Student";
 
-
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 font-sans selection:bg-purple-500/30 pb-20">
 
-      {/* Navbar Option 2 (with Knovia Logo as per earlier specs) */}
       <nav className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <button className="w-9 h-9 rounded-full bg-slate-900 border border-white/10 flex items-center justify-center hover:bg-slate-800 transition-colors group shrink-0">
+            <button
+              onClick={() => navigate(-1)}
+              className="w-9 h-9 rounded-full bg-slate-900 border border-white/10 flex items-center justify-center hover:bg-slate-800 transition-colors group shrink-0">
               <ArrowLeftIcon className="w-5 h-5 text-slate-400 group-hover:text-white transition-colors" />
             </button>
-
             <div className="flex items-center gap-2 border-l border-white/10 pl-6">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-[0_0_15px_rgba(147,51,234,0.3)]">
                 <StarIcon className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-                Knovia
-              </span>
+              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Knovia</span>
             </div>
           </div>
           <span className="text-sm font-medium text-slate-400">Student Profile</span>
@@ -106,13 +102,9 @@ const Profile = () => {
 
       <div className="max-w-7xl mx-auto px-6 pt-8 gap-8 grid lg:grid-cols-3">
 
-        {/* LEFT COLUMN: Profile & Progress */}
         <div className="space-y-8 animate-[fade-in_0.3s_ease-out]">
-
-          {/* Profile Card */}
           <div className="bg-slate-900/50 border border-white/5 rounded-3xl p-8 relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 blur-[40px] pointer-events-none group-hover:bg-purple-500/20 transition-colors" />
-
             <div className="flex flex-col items-center text-center relative z-10">
               <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 p-1 mb-4 shadow-[0_0_20px_rgba(147,51,234,0.3)]">
                 <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center border-2 border-transparent">
@@ -124,7 +116,6 @@ const Profile = () => {
               <p className="text-xs text-slate-500 mb-6 flex items-center justify-center gap-1">
                 <CalendarIcon className="w-3.5 h-3.5" /> {user?.email}
               </p>
-
               <button className="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold transition-colors border border-white/10 flex items-center justify-center gap-2">
                 <PenIcon className="w-4 h-4" />
                 Edit Profile
@@ -132,37 +123,27 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Weekly Progress Chart */}
           <div className="bg-slate-900/50 border border-white/5 rounded-3xl p-8">
             <h2 className="text-lg font-bold text-slate-200 mb-6 flex items-center gap-2">
               <BarChartIcon className="w-5 h-5 text-indigo-400" />
               Weekly Progress
             </h2>
-
             <div className="h-48 flex items-end justify-between gap-2 mt-4 relative">
-              {/* Grid Lines */}
               <div className="absolute inset-x-0 bottom-[25%] border-t border-white/5" />
               <div className="absolute inset-x-0 bottom-[50%] border-t border-white/5" />
               <div className="absolute inset-x-0 bottom-[75%] border-t border-white/5" />
-
               {weeklyData.map((day, idx) => {
                 const heightPercent = (day.hours / maxHours) * 100;
-                const isToday = day.day === "Wed"; // Mocking today
+                const isToday = day.day === "Wed";
                 return (
                   <div key={idx} className="flex flex-col items-center w-full relative z-10">
-                    {/* Tooltip on hover */}
                     <div className="opacity-0 hover:opacity-100 absolute -top-8 bg-slate-800 border border-white/10 text-xs px-2 py-1 rounded transition-opacity pointer-events-none whitespace-nowrap z-20">
                       {day.hours} hrs
                     </div>
-                    {/* Bar */}
                     <div
-                      className={`w-full max-w-[32px] rounded-t-lg transition-all hover:brightness-125 hover:-translate-y-1 ${isToday
-                          ? 'bg-gradient-to-t from-purple-600 to-indigo-500 shadow-[0_0_15px_rgba(147,51,234,0.4)]'
-                          : 'bg-slate-800 border border-b-0 border-white/10'
-                        }`}
+                      className={`w-full max-w-[32px] rounded-t-lg transition-all hover:brightness-125 hover:-translate-y-1 ${isToday ? 'bg-gradient-to-t from-purple-600 to-indigo-500 shadow-[0_0_15px_rgba(147,51,234,0.4)]' : 'bg-slate-800 border border-b-0 border-white/10'}`}
                       style={{ height: `${heightPercent}%` }}
                     />
-                    {/* Label */}
                     <span className={`text-[10px] sm:text-xs mt-3 font-medium ${isToday ? 'text-purple-400' : 'text-slate-500'}`}>
                       {day.day}
                     </span>
@@ -171,33 +152,26 @@ const Profile = () => {
               })}
             </div>
           </div>
-
         </div>
 
-        {/* RIGHT COLUMN: Stats, Activity, Notes */}
         <div className="lg:col-span-2 space-y-8 animate-[fade-in_0.5s_ease-out]">
-
-          {/* Stats Grid */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-slate-900/50 border border-white/5 rounded-3xl p-6 hover:border-purple-500/30 transition-colors">
               <BookOpenIcon className="w-6 h-6 text-purple-400 mb-4" />
               <div className="text-3xl font-bold text-white mb-1">{totalQuizzes}</div>
               <div className="text-sm font-medium text-slate-400">Total Quizzes</div>
             </div>
-
             <div className="bg-slate-900/50 border border-white/5 rounded-3xl p-6 hover:border-indigo-500/30 transition-colors">
               <TargetIcon className="w-6 h-6 text-indigo-400 mb-4" />
               <div className="text-3xl font-bold text-white mb-1">{avgScoreCalc}%</div>
               <div className="text-sm font-medium text-slate-400">Avg Quiz Score</div>
             </div>
-
             <div className="bg-slate-900/50 border border-white/5 rounded-3xl p-6 hover:border-orange-500/30 transition-colors relative overflow-hidden">
               <div className="absolute top-0 right-0 w-16 h-16 bg-orange-500/10 blur-[20px]" />
               <FlameIcon className="w-6 h-6 text-orange-400 mb-4" />
               <div className="text-3xl font-bold text-white mb-1">5 <span className="text-lg text-orange-400">🔥</span></div>
               <div className="text-sm font-medium text-slate-400">Day Streak</div>
             </div>
-
             <div className="bg-slate-900/50 border border-white/5 rounded-3xl p-6 hover:border-emerald-500/30 transition-colors">
               <ClockIcon className="w-6 h-6 text-emerald-400 mb-4" />
               <div className="text-3xl font-bold text-white mb-1">124h</div>
@@ -205,35 +179,24 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Activity Feed */}
           <div className="bg-slate-900/50 border border-white/5 rounded-3xl p-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-bold text-slate-200">Recent Activity</h2>
               <button className="text-sm text-purple-400 hover:text-purple-300 font-medium">View All</button>
             </div>
-
             <div className="space-y-4">
               {activityFeed.map((item, idx) => (
                 <div key={item.id} className={`flex items-start gap-4 p-4 rounded-2xl transition-colors hover:bg-slate-900 ${idx !== activityFeed.length - 1 ? 'border-b border-white/5' : ''}`}>
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${item.type === 'Quiz' ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400' :
-                      item.type === 'Lab' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
-                        'bg-purple-500/10 border-purple-500/20 text-purple-400'
-                    }`}>
-                    {item.type === 'Quiz' ? <FileQuestionIcon className="w-5 h-5" /> :
-                      item.type === 'Lab' ? <FlaskConicalIcon className="w-5 h-5" /> :
-                        <BookTextIcon className="w-5 h-5" />}
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${item.type === 'Quiz' ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400' : item.type === 'Lab' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-purple-500/10 border-purple-500/20 text-purple-400'}`}>
+                    {item.type === 'Quiz' ? <FileQuestionIcon className="w-5 h-5" /> : item.type === 'Lab' ? <FlaskConicalIcon className="w-5 h-5" /> : <BookTextIcon className="w-5 h-5" />}
                   </div>
-
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4 mb-1">
                       <h3 className="font-semibold text-slate-200 truncate">{item.title}</h3>
                       <span className="text-xs text-slate-500 whitespace-nowrap">{item.time}</span>
                     </div>
-
                     <div className="flex items-center gap-3">
-                      <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${getSubjectColor(item.subject)}`}>
-                        {item.subject}
-                      </span>
+                      <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${getSubjectColor(item.subject)}`}>{item.subject}</span>
                       <span className="text-sm text-slate-400 flex items-center gap-1.5">
                         <span className="w-1 h-1 rounded-full bg-slate-600 block" />
                         {item.type} {item.score && <span className="text-emerald-400 font-medium ml-1">({item.score})</span>}
@@ -245,7 +208,6 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Saved Notes Grid */}
           <div>
             <div className="flex items-center justify-between mb-6 px-2">
               <h2 className="text-lg font-bold text-slate-200 flex items-center gap-2">
@@ -254,26 +216,18 @@ const Profile = () => {
               </h2>
               <button className="text-sm text-purple-400 hover:text-purple-300 font-medium">View Collection</button>
             </div>
-
             <div className="grid sm:grid-cols-2 gap-4">
               {savedNotes && savedNotes.length > 0 ? (
                 savedNotes.map(note => (
                   <div key={note.id} className="bg-slate-900/50 border border-white/5 hover:border-white/10 rounded-2xl p-5 flex flex-col group transition-all">
                     <div className="flex justify-between items-start mb-4">
-                      <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded border ${getSubjectColor(note.subject)}`}>
-                        {note.subject}
-                      </span>
-                      <button 
-                        onClick={() => handleDeleteNote(note.id)}
-                        className="text-slate-500 hover:text-rose-400 transition-colors p-1"
-                      >
+                      <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded border ${getSubjectColor(note.subject)}`}>{note.subject}</span>
+                      <button onClick={() => handleDeleteNote(note.id)} className="text-slate-500 hover:text-rose-400 transition-colors p-1">
                         <TrashIcon className="w-4 h-4" />
                       </button>
                     </div>
-
                     <h3 className="font-bold text-slate-200 mb-1">{note.chapter}</h3>
                     <p className="text-xs text-slate-500 mb-6">Saved on {new Date(note.created_at).toLocaleDateString()}</p>
-
                     <button className="mt-auto w-full py-2.5 rounded-lg bg-slate-800 group-hover:bg-purple-600 border border-white/5 group-hover:border-transparent text-slate-300 group-hover:text-white text-sm font-semibold transition-all flex items-center justify-center gap-2">
                       Open Notes <ArrowRightIcon className="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                     </button>
@@ -287,14 +241,12 @@ const Profile = () => {
               )}
             </div>
           </div>
-
         </div>
       </div>
     </div>
   );
 };
 
-// Icons definition
 const ArrowLeftIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 19-7-7 7-7" /><path d="M19 12H5" /></svg>);
 const ArrowRightIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>);
 const StarIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>);

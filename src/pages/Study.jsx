@@ -43,6 +43,8 @@ const Study = () => {
     );
     if (res) {
       alert("Notes saved to your profile! ✅");
+    } else {
+      alert("Please login first to save notes! 🔐");
     }
   }
 
@@ -52,7 +54,7 @@ const Study = () => {
       <nav className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-md">
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center gap-4">
           <button 
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate(-1)}
             className="w-9 h-9 rounded-full bg-slate-900 border border-white/10 flex items-center justify-center hover:bg-slate-800 transition-colors group"
           >
             <ArrowLeftIcon className="w-5 h-5 text-slate-400 group-hover:text-white transition-colors" />
