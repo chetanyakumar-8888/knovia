@@ -1,176 +1,87 @@
 // NCERT PDF URL structure
 const NCERT_BASE_URL = "https://ncert.nic.in/textbook/pdf";
 
-// All NCERT chapters mapped by class and subject
 export const NCERT_CHAPTERS = {
+  "6": {
+    "Mathematics": ["Knowing Our Numbers", "Whole Numbers", "Playing with Numbers", "Basic Geometrical Ideas", "Understanding Elementary Shapes", "Integers", "Fractions", "Decimals", "Data Handling", "Mensuration", "Algebra", "Ratio and Proportion", "Symmetry", "Practical Geometry"],
+    "Science": ["Food Where Does It Come From", "Components of Food", "Fibre to Fabric", "Sorting Materials into Groups", "Separation of Substances", "Changes Around Us", "Getting to Know Plants", "Body Movements", "The Living Organisms and Their Surroundings", "Motion and Measurement of Distances", "Light Shadows and Reflections", "Electricity and Circuits", "Fun with Magnets", "Water", "Air Around Us", "Garbage In Garbage Out"],
+    "Social Science": ["What Where How and When", "On The Trial of the Earliest People", "From Gathering to Growing Food", "In the Earliest Cities", "What Books and Burials Tell Us", "Kingdoms Kings and an Early Republic", "New Questions and Ideas", "Ashoka The Emperor Who Gave Up War", "Vital Villages Thriving Towns", "Traders Kings and Pilgrims", "New Empires and Kingdoms", "Buildings Paintings and Books"],
+    "English": ["Who Did Patrick's Homework", "How the Dog Found Himself a New Master", "Taro's Reward", "An Indian American Woman in Space", "A Different Kind of School", "Who I Am", "Fair Play", "A Game of Chance", "Desert Animals", "The Banyan Tree"],
+    "Hindi": ["वह चिड़िया जो", "बचपन", "नादान दोस्त", "चाँद से थोड़ी सी गप्पें", "अक्षरों का महत्व", "पार नजर के", "साथी हाथ बढ़ाना", "ऐसे ऐसे", "टिकट अलबम", "झाँसी की रानी", "जो देखकर भी नहीं देखते", "संसार पुस्तक है", "मैं सबसे छोटी होऊँ", "लोकगीत", "नौकर", "वन के मार्ग में"]
+  },
+  "7": {
+    "Mathematics": ["Integers", "Fractions and Decimals", "Data Handling", "Simple Equations", "Lines and Angles", "The Triangle and its Properties", "Congruence of Triangles", "Comparing Quantities", "Rational Numbers", "Practical Geometry", "Perimeter and Area", "Algebraic Expressions", "Exponents and Powers", "Symmetry", "Visualising Solid Shapes"],
+    "Science": ["Nutrition in Plants", "Nutrition in Animals", "Fibre to Fabric", "Heat", "Acids Bases and Salts", "Physical and Chemical Changes", "Weather Climate and Adaptations", "Winds Storms and Cyclones", "Soil", "Respiration in Organisms", "Transportation in Animals and Plants", "Reproduction in Plants", "Motion and Time", "Electric Current and its Effects", "Light", "Water A Precious Resource", "Forests Our Lifeline", "Wastewater Story"],
+    "Social Science": ["Tracing Changes Through a Thousand Years", "New Kings and Kingdoms", "The Delhi Sultans", "The Mughal Empire", "Rulers and Buildings", "Towns Traders and Craftspersons", "Tribes Nomads and Settled Communities", "Devotional Paths to the Divine", "The Making of Regional Cultures", "Eighteenth Century Political Formations"],
+    "English": ["Three Questions", "A Gift of Chappals", "Gopal and the Hilsa Fish", "The Ashes That Made Trees Bloom", "Quality", "Expert Detectives", "The Invention of Vita Wonk", "Fire Friend and Foe", "A Bicycle in Good Repair", "The Story of Cricket"],
+    "Hindi": ["हम पंछी उन्मुक्त गगन के", "दादी माँ", "हिमालय की बेटियाँ", "कठपुतली", "मिठाईवाला", "रक्त और हमारा शरीर", "पापा खो गए", "शाम एक किसान", "चिड़िया की बच्ची", "अपूर्व अनुभव", "रहीम के दोहे", "कंचा", "एक तिनका", "खानपान की बदलती तस्वीर", "नीलकंठ", "भोर और बरखा", "वीर कुँवर सिंह", "संघर्ष के कारण मैं तुनुकमिज़ाज हो गया", "आश्रम का अनुमानित व्यय", "विप्लव गायन"]
+  },
+  "8": {
+    "Mathematics": ["Rational Numbers", "Linear Equations in One Variable", "Understanding Quadrilaterals", "Data Handling", "Squares and Square Roots", "Cubes and Cube Roots", "Comparing Quantities", "Algebraic Expressions and Identities", "Mensuration", "Exponents and Powers", "Direct and Inverse Proportions", "Factorisation", "Introduction to Graphs", "Playing with Numbers"],
+    "Science": ["Crop Production and Management", "Microorganisms Friend and Foe", "Synthetic Fibres and Plastics", "Materials Metals and Non Metals", "Coal and Petroleum", "Combustion and Flame", "Conservation of Plants and Animals", "Cell Structure and Functions", "Reproduction in Animals", "Reaching the Age of Adolescence", "Force and Pressure", "Friction", "Sound", "Chemical Effects of Electric Current", "Some Natural Phenomena", "Light", "Stars and The Solar System", "Pollution of Air and Water"],
+    "Social Science": ["How When and Where", "From Trade to Territory", "Ruling the Countryside", "Tribals Dikus and the Vision of a Golden Age", "When People Rebel", "Weavers Iron Smelters and Factory Owners", "Civilising the Native Educating the Nation", "Women Caste and Reform", "The Making of the National Movement", "India After Independence"],
+    "English": ["The Best Christmas Present in the World", "The Tsunami", "Glimpses of the Past", "Bepin Choudhury's Lapse of Memory", "The Summit Within", "This is Jody's Fawn", "A Visit to Cambridge", "A Short Monsoon Diary", "The Great Stone Face"],
+    "Hindi": ["ध्वनि", "लाख की चूड़ियाँ", "बस की यात्रा", "दीवानों की हस्ती", "चिट्ठियों की अनूठी दुनिया", "भगवान के डाकिए", "क्या निराश हुआ जाए", "यह सबसे कठिन समय नहीं", "कबीर की साखियाँ", "कामचोर", "जब सिनेमा ने बोलना सीखा", "सुदामा चरित", "जहाँ पहिया है", "अकबरी लोटा", "सूरदास के पद", "पानी की कहानी", "बाज और साँप", "टोपी"]
+  },
+  "9": {
+    "Mathematics": ["Number Systems", "Polynomials", "Coordinate Geometry", "Linear Equations in Two Variables", "Introduction to Euclids Geometry", "Lines and Angles", "Triangles", "Quadrilaterals", "Circles", "Heron's Formula", "Surface Areas and Volumes", "Statistics"],
+    "Science": ["Matter in Our Surroundings", "Is Matter Around Us Pure", "Atoms and Molecules", "Structure of the Atom", "The Fundamental Unit of Life", "Tissues", "Motion", "Force and Laws of Motion", "Gravitation", "Work and Energy", "Sound", "Improvement in Food Resources"],
+    "Social Science": ["The French Revolution", "Socialism in Europe and the Russian Revolution", "Nazism and the Rise of Hitler", "Forest Society and Colonialism", "Pastoralists in the Modern World", "India Size and Location", "Physical Features of India", "Drainage", "Climate", "Natural Vegetation and Wild Life", "Population", "What is Democracy Why Democracy", "Constitutional Design", "Electoral Politics", "Working of Institutions", "Democratic Rights", "The Story of Village Palampur", "People as Resource", "Poverty as a Challenge", "Food Security in India"],
+    "English": ["The Fun They Had", "The Sound of Music", "The Little Girl", "A Truly Beautiful Mind", "The Snake and the Mirror", "My Childhood", "Packing", "Reach for the Top", "The Bond of Love", "Kathmandu", "If I Were You"],
+    "Hindi": ["दो बैलों की कथा", "ल्हासा की ओर", "उपभोक्तावाद की संस्कृति", "साँवले सपनों की याद", "नाना साहब की पुत्री देवी मैना को भस्म कर दिया गया", "प्रेमचंद के फटे जूते", "मेरे बचपन के दिन", "एक कुत्ता और एक मैना", "सखियाँ एवं सबद", "वाख", "सवैये", "कैदी और कोकिला", "ग्राम श्री", "चंद्र गहना से लौटती बेर", "मेघ आए", "यमराज की दिशा", "बच्चे काम पर जा रहे हैं"]
+  },
+  "10": {
+    "Mathematics": ["Real Numbers", "Polynomials", "Pair of Linear Equations in Two Variables", "Quadratic Equations", "Arithmetic Progressions", "Triangles", "Coordinate Geometry", "Introduction to Trigonometry", "Some Applications of Trigonometry", "Circles", "Areas Related to Circles", "Surface Areas and Volumes", "Statistics", "Probability"],
+    "Science": ["Chemical Reactions and Equations", "Acids Bases and Salts", "Metals and Non Metals", "Carbon and Its Compounds", "Life Processes", "Control and Coordination", "How do Organisms Reproduce", "Heredity", "Light Reflection and Refraction", "Human Eye and Colourful World", "Electricity", "Magnetic Effects of Electric Current", "Our Environment"],
+    "Social Science": ["The Rise of Nationalism in Europe", "Nationalism in India", "The Making of a Global World", "The Age of Industrialisation", "Print Culture and the Modern World", "Resources and Development", "Forest and Wildlife Resources", "Water Resources", "Agriculture", "Minerals and Energy Resources", "Manufacturing Industries", "Lifelines of National Economy", "Power Sharing", "Federalism", "Gender Religion and Caste", "Political Parties", "Outcomes of Democracy", "Development", "Sectors of the Indian Economy", "Money and Credit", "Globalisation and the Indian Economy", "Consumer Rights"],
+    "English": ["A Letter to God", "Nelson Mandela Long Walk to Freedom", "Two Stories about Flying", "From the Diary of Anne Frank", "Glimpses of India", "Mijbil the Otter", "Madam Rides the Bus", "The Sermon at Benares", "The Proposal", "A Triumph of Surgery", "The Thief's Story", "The Midnight Visitor", "A Question of Trust", "Footprints without Feet", "The Making of a Scientist", "The Necklace", "Bholi", "The Book That Saved the Earth"],
+    "Hindi": ["सूरदास के पद", "तुलसीदास के पद", "देव के सवैये", "जयशंकर प्रसाद", "सूर्यकांत त्रिपाठी निराला", "नागार्जुन", "गिरिजाकुमार माथुर", "ऋतुराज", "मंगलेश डबराल", "स्वयं प्रकाश", "रामवृक्ष बेनीपुरी", "यशपाल", "सर्वेश्वर दयाल सक्सेना", "मन्नू भंडारी", "महावीर प्रसाद द्विवेदी", "यतीन्द्र मिश्र", "भदंत आनंद कौसल्यायन"]
+  },
   "11": {
-    "Physics": [
-      "Physical World",
-      "Units and Measurements", 
-      "Motion in a Straight Line",
-      "Motion in a Plane",
-      "Laws of Motion",
-      "Work Energy and Power",
-      "System of Particles and Rotational Motion",
-      "Gravitation",
-      "Mechanical Properties of Solids",
-      "Mechanical Properties of Fluids",
-      "Thermal Properties of Matter",
-      "Thermodynamics",
-      "Kinetic Theory",
-      "Oscillations",
-      "Waves"
-    ],
-    "Chemistry": [
-      "Some Basic Concepts of Chemistry",
-      "Structure of Atom",
-      "Classification of Elements and Periodicity",
-      "Chemical Bonding and Molecular Structure",
-      "Thermodynamics",
-      "Equilibrium",
-      "Redox Reactions",
-      "Organic Chemistry Basic Principles",
-      "Hydrocarbons",
-      "Environmental Chemistry"
-    ],
-    "Mathematics": [
-      "Sets",
-      "Relations and Functions",
-      "Trigonometric Functions",
-      "Complex Numbers",
-      "Linear Inequalities",
-      "Permutations and Combinations",
-      "Binomial Theorem",
-      "Sequences and Series",
-      "Straight Lines",
-      "Conic Sections",
-      "Introduction to 3D Geometry",
-      "Limits and Derivatives",
-      "Statistics",
-      "Probability"
-    ],
-    "Biology": [
-      "The Living World",
-      "Biological Classification",
-      "Plant Kingdom",
-      "Animal Kingdom",
-      "Morphology of Flowering Plants",
-      "Anatomy of Flowering Plants",
-      "Structural Organisation in Animals",
-      "Cell The Unit of Life",
-      "Biomolecules",
-      "Cell Cycle and Cell Division",
-      "Transport in Plants",
-      "Mineral Nutrition",
-      "Photosynthesis in Higher Plants",
-      "Respiration in Plants",
-      "Plant Growth and Development",
-      "Digestion and Absorption",
-      "Breathing and Exchange of Gases",
-      "Body Fluids and Circulation",
-      "Excretory Products and Elimination",
-      "Locomotion and Movement",
-      "Neural Control and Coordination",
-      "Chemical Coordination and Integration"
-    ]
+    "Physics": ["Physical World", "Units and Measurements", "Motion in a Straight Line", "Motion in a Plane", "Laws of Motion", "Work Energy and Power", "System of Particles and Rotational Motion", "Gravitation", "Mechanical Properties of Solids", "Mechanical Properties of Fluids", "Thermal Properties of Matter", "Thermodynamics", "Kinetic Theory", "Oscillations", "Waves"],
+    "Chemistry": ["Some Basic Concepts of Chemistry", "Structure of Atom", "Classification of Elements and Periodicity", "Chemical Bonding and Molecular Structure", "Thermodynamics", "Equilibrium", "Redox Reactions", "Organic Chemistry Basic Principles", "Hydrocarbons", "Environmental Chemistry"],
+    "Mathematics": ["Sets", "Relations and Functions", "Trigonometric Functions", "Complex Numbers", "Linear Inequalities", "Permutations and Combinations", "Binomial Theorem", "Sequences and Series", "Straight Lines", "Conic Sections", "Introduction to 3D Geometry", "Limits and Derivatives", "Statistics", "Probability"],
+    "Biology": ["The Living World", "Biological Classification", "Plant Kingdom", "Animal Kingdom", "Morphology of Flowering Plants", "Anatomy of Flowering Plants", "Structural Organisation in Animals", "Cell The Unit of Life", "Biomolecules", "Cell Cycle and Cell Division", "Transport in Plants", "Mineral Nutrition", "Photosynthesis in Higher Plants", "Respiration in Plants", "Plant Growth and Development", "Digestion and Absorption", "Breathing and Exchange of Gases", "Body Fluids and Circulation", "Excretory Products and Elimination", "Locomotion and Movement", "Neural Control and Coordination", "Chemical Coordination and Integration"],
+    "Accountancy": ["Introduction to Accounting", "Theory Base of Accounting", "Recording of Transactions I", "Recording of Transactions II", "Bank Reconciliation Statement", "Trial Balance and Rectification of Errors", "Depreciation Provisions and Reserves", "Bill of Exchange", "Financial Statements I", "Financial Statements II", "Accounts from Incomplete Records", "Applications of Computers in Accounting", "Computerised Accounting System"],
+    "Business Studies": ["Nature and Purpose of Business", "Forms of Business Organisation", "Private Public and Global Enterprises", "Business Services", "Emerging Modes of Business", "Social Responsibilities of Business and Business Ethics", "Formation of a Company", "Sources of Business Finance", "Small Business", "Internal Trade", "International Business"],
+    "Economics": ["Introduction to Economics", "Collection Organisation and Presentation of Data", "Statistical Tools and Interpretation", "Indian Economy on the Eve of Independence", "Indian Economy 1950 1990", "Liberalisation Privatisation and Globalisation", "Poverty", "Human Capital Formation in India", "Rural Development", "Employment Growth Informalisation and Other Issues", "Infrastructure", "Environment and Sustainable Development", "Development Experience of India"],
+    "Computer Science": ["Computer Systems and Organisation", "Encoding Schemes and Number System", "Emerging Trends", "Introduction to Problem Solving", "Getting Started with Python", "Flow of Control", "Functions", "Strings", "Lists", "Tuples and Dictionary", "Societal Impacts"],
+    "History": ["From the Beginning of Time", "Writing and City Life", "An Empire Across Three Continents", "The Central Islamic Lands", "Nomadic Empires", "The Three Orders", "Changing Cultural Traditions", "Confrontation of Cultures", "The Industrial Revolution", "Displacing Indigenous Peoples", "Paths to Modernisation"],
+    "Geography": ["Geography as a Discipline", "The Origin and Evolution of the Earth", "Interior of the Earth", "Distribution of Oceans and Continents", "Minerals and Rocks", "Geomorphic Processes", "Landforms and their Evolution", "Composition and Structure of Atmosphere", "Solar Radiation Heat Balance and Temperature", "Atmospheric Circulation and Weather Systems", "Water in the Atmosphere", "World Climate and Climate Change", "Water Oceans", "Movements of Ocean Water", "Life on the Earth", "Biodiversity and Conservation", "India Location", "Structure and Physiography", "Drainage System", "Climate", "Natural Vegetation", "Soils", "Natural Hazards and Disasters"],
+    "Political Science": ["Constitution Why and How", "Rights in the Indian Constitution", "Election and Representation", "Executive", "Legislature", "Judiciary", "Federalism", "Local Governments", "Constitution as a Living Document", "The Philosophy of the Constitution", "End of Bipolarity", "US Hegemony in World Politics", "US Hegemony in World Politics", "Alternative Centres of Power", "Contemporary South Asia", "International Organisations", "Security in the Contemporary World", "Environment and Natural Resources", "Globalisation"]
   },
   "12": {
-    "Physics": [
-      "Electric Charges and Fields",
-      "Electrostatic Potential and Capacitance",
-      "Current Electricity",
-      "Moving Charges and Magnetism",
-      "Magnetism and Matter",
-      "Electromagnetic Induction",
-      "Alternating Current",
-      "Electromagnetic Waves",
-      "Ray Optics and Optical Instruments",
-      "Wave Optics",
-      "Dual Nature of Radiation and Matter",
-      "Atoms",
-      "Nuclei",
-      "Semiconductor Electronics"
-    ],
-    "Chemistry": [
-      "The Solid State",
-      "Solutions",
-      "Electrochemistry",
-      "Chemical Kinetics",
-      "Surface Chemistry",
-      "General Principles of Isolation of Elements",
-      "The p-Block Elements",
-      "The d and f Block Elements",
-      "Coordination Compounds",
-      "Haloalkanes and Haloarenes",
-      "Alcohols Phenols and Ethers",
-      "Aldehydes Ketones and Carboxylic Acids",
-      "Amines",
-      "Biomolecules"
-    ],
-    "Mathematics": [
-      "Relations and Functions",
-      "Inverse Trigonometric Functions",
-      "Matrices",
-      "Determinants",
-      "Continuity and Differentiability",
-      "Application of Derivatives",
-      "Integrals",
-      "Application of Integrals",
-      "Differential Equations",
-      "Vector Algebra",
-      "Three Dimensional Geometry",
-      "Linear Programming",
-      "Probability"
-    ],
-    "Biology": [
-      "Reproduction in Organisms",
-      "Sexual Reproduction in Flowering Plants",
-      "Human Reproduction",
-      "Reproductive Health",
-      "Principles of Inheritance and Variation",
-      "Molecular Basis of Inheritance",
-      "Evolution",
-      "Human Health and Disease",
-      "Strategies for Enhancement in Food Production",
-      "Microbes in Human Welfare",
-      "Biotechnology Principles and Processes",
-      "Biotechnology and its Applications",
-      "Organisms and Populations",
-      "Ecosystem",
-      "Biodiversity and Conservation"
-    ]
+    "Physics": ["Electric Charges and Fields", "Electrostatic Potential and Capacitance", "Current Electricity", "Moving Charges and Magnetism", "Magnetism and Matter", "Electromagnetic Induction", "Alternating Current", "Electromagnetic Waves", "Ray Optics and Optical Instruments", "Wave Optics", "Dual Nature of Radiation and Matter", "Atoms", "Nuclei", "Semiconductor Electronics"],
+    "Chemistry": ["The Solid State", "Solutions", "Electrochemistry", "Chemical Kinetics", "Surface Chemistry", "General Principles of Isolation of Elements", "The p-Block Elements", "The d and f Block Elements", "Coordination Compounds", "Haloalkanes and Haloarenes", "Alcohols Phenols and Ethers", "Aldehydes Ketones and Carboxylic Acids", "Amines", "Biomolecules"],
+    "Mathematics": ["Relations and Functions", "Inverse Trigonometric Functions", "Matrices", "Determinants", "Continuity and Differentiability", "Application of Derivatives", "Integrals", "Application of Integrals", "Differential Equations", "Vector Algebra", "Three Dimensional Geometry", "Linear Programming", "Probability"],
+    "Biology": ["Reproduction in Organisms", "Sexual Reproduction in Flowering Plants", "Human Reproduction", "Reproductive Health", "Principles of Inheritance and Variation", "Molecular Basis of Inheritance", "Evolution", "Human Health and Disease", "Strategies for Enhancement in Food Production", "Microbes in Human Welfare", "Biotechnology Principles and Processes", "Biotechnology and its Applications", "Organisms and Populations", "Ecosystem", "Biodiversity and Conservation"],
+    "Accountancy": ["Accounting for Partnership Firms Fundamentals", "Reconstitution of Partnership Firm Admission of a Partner", "Reconstitution of Partnership Firm Retirement and Death of a Partner", "Dissolution of Partnership Firm", "Accounting for Share Capital", "Issue and Redemption of Debentures", "Financial Statements of a Company", "Analysis of Financial Statements", "Accounting Ratios", "Cash Flow Statement"],
+    "Business Studies": ["Nature and Significance of Management", "Principles of Management", "Business Environment", "Planning", "Organising", "Staffing", "Directing", "Controlling", "Financial Management", "Financial Markets", "Marketing Management", "Consumer Protection"],
+    "Economics": ["Introduction to Macroeconomics", "National Income Accounting", "Money and Banking", "Determination of Income and Employment", "Government Budget and the Economy", "Open Economy Macroeconomics", "Indian Economy on the Eve of Independence", "Indian Economy 1950 1990", "Liberalisation Privatisation and Globalisation", "Poverty", "Human Capital Formation in India", "Rural Development", "Employment Growth Informalisation", "Infrastructure", "Environment and Sustainable Development", "Comparative Development Experiences"],
+    "Computer Science": ["Python Revision Tour", "Exception Handling", "File Handling", "Stack", "Queue", "Searching and Sorting", "Understanding Data", "Database Concepts", "Structured Query Language", "Computer Networks", "Societal Impacts"],
+    "History": ["Bricks Beads and Bones", "Kings Farmers and Towns", "Kinship Caste and Class", "Thinkers Beliefs and Buildings", "Through the Eyes of Travellers", "Bhakti Sufi Traditions", "An Imperial Capital Vijayanagara", "Peasants Zamindars and the State", "Kings and Chronicles", "Colonialism and the Countryside", "Rebels and the Raj", "Colonial Cities", "Mahatma Gandhi and the Nationalist Movement", "Understanding Partition", "Framing the Constitution"],
+    "Geography": ["Population Distribution Density Growth and Composition", "Migration Types Causes and Consequences", "Human Development", "Human Settlements", "Land Resources and Agriculture", "Water Resources", "Mineral and Energy Resources", "Manufacturing Industries", "Planning and Sustainable Development", "Transport and Communication", "International Trade", "Geographical Perspective on Selected Issues", "Population of India", "Migration in India", "Human Development in India", "Human Settlements in India", "Land Resources and Agriculture in India", "Water Resources in India", "Mineral and Energy Resources in India", "Manufacturing Industries in India", "Planning in India", "Transport and Communication in India", "International Trade of India", "Geographical Perspective on Selected Issues and Problems"],
+    "Political Science": ["The Cold War Era", "The End of Bipolarity", "US Hegemony in World Politics", "Alternative Centres of Power", "Contemporary South Asia", "International Organisations", "Security in the Contemporary World", "Environment and Natural Resources", "Globalisation", "Challenges of Nation Building", "Era of One Party Dominance", "Politics of Planned Development", "India's External Relations", "Challenges to the Congress System", "Crisis of the Constitutional Order", "Regional Aspirations", "Rise of Popular Movements", "Recent Developments in Indian Politics"]
   }
 };
 
-// Get chapters for a class and subject
 export function getChapters(className, subject) {
   return NCERT_CHAPTERS[className]?.[subject] || [];
 }
 
-// Get subjects for a class
 export function getSubjects(className) {
   return Object.keys(NCERT_CHAPTERS[className] || {});
 }
 
-// Fetch NCERT chapter content
 export async function fetchNCERTContent(className, subject, chapterIndex) {
   try {
-    // Since direct PDF fetch has CORS issues
-    // We use chapter text as context for AI
     const chapterName = NCERT_CHAPTERS[className][subject][chapterIndex];
-    
-    // Return chapter info for AI to use its knowledge
     return {
       success: true,
       chapterName,
-      content: `Class ${className} ${subject} - ${chapterName}. 
-      This is a CBSE NCERT chapter. Generate comprehensive 
-      study material based on the official NCERT curriculum.`
+      content: `Class ${className} ${subject} - ${chapterName}. This is a CBSE NCERT chapter. Generate comprehensive study material based on the official NCERT curriculum.`
     };
   } catch (error) {
-    return {
-      success: false,
-      error: error.message
-    };
+    return { success: false, error: error.message };
   }
 }

@@ -51,10 +51,7 @@ const Landing = () => {
             <button onClick={() => navigate('/dashboard')} className="w-full sm:w-auto px-8 py-4 rounded-full bg-white text-slate-950 font-bold text-lg hover:bg-slate-200 transition-colors">
               Start Learning Free
             </button>
-            <button className="w-full sm:w-auto px-8 py-4 rounded-full bg-white/5 border border-white/10 text-white font-bold text-lg hover:bg-white/10 transition-colors flex items-center justify-center gap-2">
-              <PlayIcon className="w-5 h-5" />
-              Watch Demo
-            </button>
+
           </div>
         </div>
       </section>
@@ -128,9 +125,9 @@ const Landing = () => {
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdib3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiM5QzkyQTMiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djIwaC0ydi0yMGgtMTh2MmgyMHYtMmgzNnYtMmgtMzZ2MmgxOHptLTIwaC0ydjIwaDJ2LTIwem0yMCAwaDJ2MjBoLTJ2LTIweiIgLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20" />
           <h2 className="text-3xl md:text-5xl font-bold mb-6 relative z-10">Ready to transform your grades?</h2>
           <p className="text-slate-300 mb-8 relative z-10">Join thousands of Indian students already studying smarter with Knovia.</p>
-          <button className="px-8 py-4 rounded-full bg-white text-slate-950 font-bold text-lg hover:bg-slate-200 transition-colors relative z-10 shadow-[0_0_30px_rgba(255,255,255,0.2)]">
-            Create Free Account
-          </button>
+          <button onClick={() => navigate('/signup')} className="px-8 py-4 rounded-full bg-white text-slate-950 font-bold text-lg hover:bg-slate-200 transition-colors relative z-10 shadow-[0_0_30px_rgba(255,255,255,0.2)]">
+  Create Free Account
+</button>
         </div>
       </section>
 
