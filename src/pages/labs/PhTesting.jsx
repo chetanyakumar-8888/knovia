@@ -2,39 +2,31 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 const SOLUTIONS = [
-  { name: "Battery Acid", ph: 0.5, color: "#ef4444" },
-  { name: "Gastric Acid", ph: 1.5, color: "#f97316" },
-  { name: "Lemon Juice", ph: 2.4, color: "#eab308" },
-  { name: "Vinegar", ph: 3.0, color: "#ca8a04" },
-  { name: "Tomato Juice", ph: 4.2, color: "#f97316" },
-  { name: "Coffee", ph: 5.0, color: "#92400e" },
-  { name: "Milk", ph: 6.5, color: "#e2e8f0" },
-  { name: "Pure Water", ph: 7.0, color: "#93c5fd" },
-  { name: "Blood", ph: 7.4, color: "#fca5a5" },
-  { name: "Baking Soda", ph: 8.3, color: "#60a5fa" },
-  { name: "Soap", ph: 9.5, color: "#a78bfa" },
-  { name: "Milk of Magnesia", ph: 10.5, color: "#818cf8" },
-  { name: "Ammonia", ph: 11.5, color: "#6366f1" },
-  { name: "Bleach", ph: 12.5, color: "#4f46e5" },
-  { name: "Drain Cleaner", ph: 14.0, color: "#3730a3" },
+  { name: "Battery Acid", ph: 0.5 },
+  { name: "Gastric Acid", ph: 1.5 },
+  { name: "Lemon Juice", ph: 2.4 },
+  { name: "Vinegar", ph: 3.0 },
+  { name: "Tomato Juice", ph: 4.2 },
+  { name: "Coffee", ph: 5.0 },
+  { name: "Milk", ph: 6.5 },
+  { name: "Pure Water", ph: 7.0 },
+  { name: "Blood", ph: 7.4 },
+  { name: "Baking Soda", ph: 8.3 },
+  { name: "Soap", ph: 9.5 },
+  { name: "Milk of Magnesia", ph: 10.5 },
+  { name: "Ammonia", ph: 11.5 },
+  { name: "Bleach", ph: 12.5 },
+  { name: "Drain Cleaner", ph: 14.0 },
 ];
 
 const getPhColor = (ph) => {
-  if (ph < 3) return "#ef4444";
-  if (ph < 5) return "#f97316";
-  if (ph < 6) return "#eab308";
-  if (ph < 7) return "#84cc16";
-  if (ph === 7) return "#22c55e";
-  if (ph < 9) return "#06b6d4";
-  if (ph < 11) return "#3b82f6";
-  if (ph < 13) return "#8b5cf6";
-  return "#7c3aed";
-};
-
-const getPhType = (ph) => {
-  if (ph < 7) return "Acidic";
-  if (ph === 7) return "Neutral";
-  return "Basic/Alkaline";
+  if (ph < 3) return "#ef4444"; // Red
+  if (ph < 5) return "#f97316"; // Orange
+  if (ph < 6.5) return "#eab308"; // Yellow
+  if (ph < 7.5) return "#22c55e"; // Green
+  if (ph < 9) return "#06b6d4"; // Cyan
+  if (ph < 11) return "#3b82f6"; // Blue
+  return "#7c3aed"; // Violet/Purple
 };
 
 const PhTesting = () => {
@@ -46,9 +38,17 @@ const PhTesting = () => {
 
   const ph = mode === "preset" ? SOLUTIONS[selectedSolution].ph : customPh;
   const phColor = getPhColor(ph);
-  const phType = getPhType(ph);
   const hConc = Math.pow(10, -ph).toExponential(2);
   const ohConc = Math.pow(10, -(14 - ph)).toExponential(2);
+
+  // Tailwind Color Mapping for Stat Cards
+  const colorMap = {
+    purple: "text-purple-400 border-purple-500/20 bg-purple-500/5",
+    red: "text-rose-400 border-rose-500/20 bg-rose-500/5",
+    green: "text-emerald-400 border-emerald-500/20 bg-emerald-500/5",
+    blue: "text-blue-400 border-blue-500/20 bg-blue-500/5",
+    yellow: "text-amber-400 border-amber-500/20 bg-amber-500/5",
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -57,256 +57,172 @@ const PhTesting = () => {
     const H = canvas.height;
     ctx.clearRect(0, 0, W, H);
 
-    // pH scale bar
-    const barX = 40;
-    const barY = 40;
-    const barW = W - 80;
-    const barH = 40;
-
-    // Rainbow gradient scale
+    // 1. Draw pH Scale Bar
+    const barX = 50, barY = 40, barW = W - 100, barH = 30;
     const grad = ctx.createLinearGradient(barX, 0, barX + barW, 0);
     grad.addColorStop(0, "#ef4444");
-    grad.addColorStop(0.2, "#f97316");
-    grad.addColorStop(0.35, "#eab308");
     grad.addColorStop(0.5, "#22c55e");
-    grad.addColorStop(0.65, "#06b6d4");
-    grad.addColorStop(0.8, "#3b82f6");
     grad.addColorStop(1, "#7c3aed");
-
     ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.roundRect(barX, barY, barW, barH, 8);
+    ctx.roundRect(barX, barY, barW, barH, 15);
     ctx.fill();
 
-    // Scale numbers
-    for (let i = 0; i <= 14; i++) {
-      const x = barX + (i / 14) * barW;
-      ctx.fillStyle = "#e2e8f0";
-      ctx.font = "10px monospace";
-      ctx.textAlign = "center";
-      ctx.fillText(i, x, barY + barH + 15);
-    }
-
-    // pH indicator arrow
+    // Arrow indicator
     const arrowX = barX + (ph / 14) * barW;
+    ctx.fillStyle = "white";
     ctx.beginPath();
-    ctx.moveTo(arrowX - 8, barY - 5);
-    ctx.lineTo(arrowX + 8, barY - 5);
-    ctx.lineTo(arrowX, barY + 2);
-    ctx.fillStyle = "#ffffff";
+    ctx.moveTo(arrowX, barY + barH + 5);
+    ctx.lineTo(arrowX - 8, barY + barH + 15);
+    ctx.lineTo(arrowX + 8, barY + barH + 15);
     ctx.fill();
 
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 12px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText(`pH ${ph}`, arrowX, barY - 10);
-
-    // Labels
-    ctx.fillStyle = "#ef4444";
-    ctx.font = "11px monospace";
-    ctx.textAlign = "left";
-    ctx.fillText("← ACID", barX, barY + barH + 30);
-    ctx.fillStyle = "#22c55e";
-    ctx.textAlign = "center";
-    ctx.fillText("NEUTRAL", barX + barW / 2, barY + barH + 30);
-    ctx.fillStyle = "#7c3aed";
-    ctx.textAlign = "right";
-    ctx.fillText("BASE →", barX + barW, barY + barH + 30);
-
-    // Test tube / beaker
-    const bx = W / 2;
-    const by = 160;
-    const bw = 80;
-    const bh = 120;
-
-    // Beaker
+    // 2. Beaker Visualization
+    const bx = W / 2, by = 140, bw = 100, bh = 130;
+    
+    // Liquid
+    ctx.fillStyle = phColor;
+    ctx.globalAlpha = 0.6;
     ctx.beginPath();
-    ctx.moveTo(bx - bw / 2, by);
-    ctx.lineTo(bx - bw / 2 - 5, by + bh);
-    ctx.lineTo(bx + bw / 2 + 5, by + bh);
-    ctx.lineTo(bx + bw / 2, by);
-    ctx.strokeStyle = "#7c3aed";
-    ctx.lineWidth = 2.5;
+    ctx.roundRect(bx - bw/2 + 5, by + 40, bw - 10, bh - 45, [0, 0, 15, 15]);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    // Beaker Glass
+    ctx.strokeStyle = "#94a3b8";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(bx - bw/2, by);
+    ctx.lineTo(bx - bw/2, by + bh - 10);
+    ctx.arcTo(bx - bw/2, by + bh, bx + bw/2, by + bh, 15);
+    ctx.lineTo(bx + bw/2, by + bh);
+    ctx.lineTo(bx + bw/2, by);
     ctx.stroke();
 
-    // Liquid in beaker
-    const liquidGrad = ctx.createLinearGradient(bx - bw / 2, by + 20, bx + bw / 2, by + bh);
-    liquidGrad.addColorStop(0, phColor + "99");
-    liquidGrad.addColorStop(1, phColor + "dd");
-    ctx.fillStyle = liquidGrad;
-    ctx.beginPath();
-    ctx.moveTo(bx - bw / 2 + 2, by + 20);
-    ctx.lineTo(bx - bw / 2 - 3, by + bh - 2);
-    ctx.lineTo(bx + bw / 2 + 3, by + bh - 2);
-    ctx.lineTo(bx + bw / 2 - 2, by + 20);
-    ctx.fill();
-
-    // Indicator paper strip
-    ctx.fillStyle = phColor;
-    ctx.fillRect(bx + bw / 2 + 10, by + 30, 15, 60);
-    ctx.strokeStyle = "#e2e8f0";
-    ctx.lineWidth = 1;
-    ctx.strokeRect(bx + bw / 2 + 10, by + 30, 15, 60);
-    ctx.fillStyle = "#fff";
-    ctx.font = "8px monospace";
+    // pH Text in Beaker
+    ctx.fillStyle = "white";
+    ctx.font = "bold 32px Inter, monospace";
     ctx.textAlign = "center";
-    ctx.fillText("pH", bx + bw / 2 + 17, by + 65);
+    ctx.fillText(ph, bx, by + 90);
 
-    // pH value display
-    ctx.fillStyle = phColor;
-    ctx.font = "bold 32px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText(ph, bx, by + 75);
-
-    // Solution name
-    ctx.fillStyle = "#e2e8f0";
-    ctx.font = "12px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText(
-      mode === "preset" ? SOLUTIONS[selectedSolution].name : "Custom Solution",
-      bx, by + bh + 20
-    );
-
-    // Bubbles for strong acid/base
-    if (ph < 2 || ph > 12) {
-      for (let i = 0; i < 5; i++) {
-        ctx.beginPath();
-        ctx.arc(
-          bx - 20 + i * 10,
-          by + 40 + (Date.now() / 500 + i * 30) % 80,
-          3, 0, Math.PI * 2
-        );
-        ctx.strokeStyle = phColor + "88";
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
-    }
-
-  }, [ph, selectedSolution, mode]);
+  }, [ph, phColor]);
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-4">
+    <div className="min-h-screen bg-slate-950 text-slate-100 pb-10">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate("/lab")}
-            className="w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center hover:bg-gray-700"
-          >←</button>
-          <h1 className="text-xl font-bold">pH Testing Lab 🧪</h1>
+      <nav className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur-md h-16 flex items-center px-6 justify-between">
+        <div className="flex items-center gap-4">
+          <button onClick={() => navigate("/lab")} className="p-2 bg-slate-900 rounded-full border border-white/10 hover:bg-slate-800 transition-colors">
+            ←
+          </button>
+          <h1 className="font-bold text-lg">pH Lab: Acids & Bases 🧪</h1>
         </div>
-        <span className="text-xs bg-purple-900 text-purple-300 px-3 py-1 rounded-full border border-purple-700">
-          CBSE CLASS 10 CHEMISTRY
-        </span>
-      </div>
+        <div className="text-[10px] font-black bg-purple-500/10 border border-purple-500/20 text-purple-400 px-3 py-1 rounded-full tracking-widest uppercase">
+          CBSE Class 10
+        </div>
+      </nav>
 
-      {/* Main Layout */}
-      <div className="flex gap-4 mb-4">
-        {/* Left Controls */}
-        <div className="w-1/3 flex flex-col gap-4">
-          <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-            <h2 className="text-sm font-semibold text-purple-400 mb-4">⚙️ Controls</h2>
+      <div className="max-w-[1400px] mx-auto p-4 md:p-8 grid gap-6 
+        grid-cols-1 
+        lg:grid-cols-[400px_1fr] 
+        [grid-template-areas:'viz''controls''calc''cards''theory''points'] 
+        lg:[grid-template-areas:'controls_viz''calc_viz''cards_cards''theory_points']">
 
-            {/* Mode toggle */}
-            <div className="flex gap-2 mb-4">
-              {["preset", "custom"].map((m) => (
-                <button key={m} onClick={() => setMode(m)}
-                  className={`flex-1 py-2 rounded-lg text-xs font-medium capitalize ${
-                    mode === m ? "bg-purple-600 text-white" : "bg-gray-800 text-gray-400"
-                  }`}>{m}</button>
+        {/* 1. VISUALIZATION (Main area) */}
+        <section className="[grid-area:viz] bg-slate-900/40 border border-white/5 rounded-3xl p-6 flex flex-col items-center justify-center min-h-[420px] shadow-2xl">
+          <span className="self-start text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Experimental Setup</span>
+          <canvas ref={canvasRef} width={600} height={320} className="w-full h-auto max-w-[500px]" />
+          <h3 className="mt-4 text-xl font-bold text-white">
+            {mode === "preset" ? SOLUTIONS[selectedSolution].name : "Custom Solution"}
+          </h3>
+        </section>
+
+        {/* 2. CONTROLS (Sidebar Top) */}
+        <section className="[grid-area:controls] bg-slate-900/60 border border-white/10 rounded-3xl p-6">
+          <h2 className="text-sm font-black text-purple-400 uppercase tracking-widest mb-6">Mode Selection</h2>
+          
+          <div className="flex p-1 bg-slate-950 rounded-2xl border border-white/5 mb-6">
+            {["preset", "custom"].map((m) => (
+              <button key={m} onClick={() => setMode(m)}
+                className={`flex-1 py-2 rounded-xl text-xs font-bold capitalize transition-all ${mode === m ? "bg-purple-600 shadow-lg" : "text-slate-500 hover:text-slate-300"}`}>
+                {m}
+              </button>
+            ))}
+          </div>
+
+          {mode === "preset" ? (
+            <div className="space-y-2 max-h-[220px] overflow-y-auto pr-2 custom-scrollbar">
+              {SOLUTIONS.map((sol, i) => (
+                <button key={i} onClick={() => setSelectedSolution(i)}
+                  className={`w-full flex items-center justify-between p-3 rounded-xl text-sm transition-all border ${selectedSolution === i ? "bg-purple-600/20 border-purple-500" : "bg-slate-800/40 border-transparent hover:border-white/10"}`}>
+                  <span className="font-medium">{sol.name}</span>
+                  <span className="font-bold text-xs px-2 py-0.5 rounded-lg bg-white/10">{sol.ph}</span>
+                </button>
               ))}
             </div>
-
-            {mode === "preset" ? (
-              <div className="space-y-1 max-h-64 overflow-y-auto pr-1">
-                {SOLUTIONS.map((sol, i) => (
-                  <button key={i} onClick={() => setSelectedSolution(i)}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between ${
-                      selectedSolution === i ? "ring-1 ring-purple-500 bg-purple-900/30" : "bg-gray-800 hover:bg-gray-700"
-                    }`}>
-                    <span>{sol.name}</span>
-                    <span className="font-bold px-2 py-0.5 rounded text-black text-xs"
-                      style={{ backgroundColor: getPhColor(sol.ph) }}>
-                      {sol.ph}
-                    </span>
-                  </button>
-                ))}
+          ) : (
+            <div className="space-y-6 py-4">
+              <div className="flex justify-between items-end">
+                <span className="text-xs text-slate-500 font-bold uppercase">Adjust pH</span>
+                <span className="text-4xl font-black" style={{ color: phColor }}>{customPh}</span>
               </div>
-            ) : (
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm text-gray-400">Custom pH</span>
-                  <span className="text-sm font-bold px-2 py-0.5 rounded text-black"
-                    style={{ backgroundColor: phColor }}>
-                    {customPh}
-                  </span>
-                </div>
-                <input type="range" min="0" max="14" step="0.1" value={customPh}
-                  onChange={(e) => setCustomPh(Number(e.target.value))}
-                  className="w-full accent-purple-500"/>
-                <div className="flex justify-between text-xs text-gray-600 mt-1">
-                  <span>0 (Acid)</span><span>14 (Base)</span>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+              <input type="range" min="0" max="14" step="0.1" value={customPh}
+                onChange={(e) => setCustomPh(Number(e.target.value))}
+                className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-500" />
+            </div>
+          )}
+        </section>
 
-        {/* Right - Visualization */}
-        <div className="w-2/3 bg-gray-900 rounded-xl border border-gray-800 p-4">
-          <h2 className="text-sm font-semibold text-gray-400 mb-3">pH Scale & Testing</h2>
-          <canvas ref={canvasRef} width={600} height={320}
-            className="w-full rounded-lg bg-gray-950"/>
-        </div>
-      </div>
+        {/* 3. QUICK CALC (Sidebar Bottom) */}
+        <section className="[grid-area:calc] bg-indigo-500/5 border border-indigo-500/20 rounded-3xl p-6 flex flex-col justify-center">
+          <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2">Ionic Product (Kw)</p>
+          <div className="text-2xl font-mono font-bold text-white">10⁻¹⁴</div>
+          <p className="text-[10px] text-slate-500 mt-2 italic">[H⁺] × [OH⁻] is always constant at 25°C</p>
+        </section>
 
-      {/* 4 Data Cards */}
-      <div className="grid grid-cols-4 gap-3 mb-4">
-        {[
-          { label: "pH Value", value: ph, unit: "", color: "purple" },
-          { label: "Type", value: phType, unit: "", color: ph < 7 ? "red" : ph === 7 ? "green" : "blue" },
-          { label: "[H⁺] Conc.", value: hConc, unit: "mol/L", color: "yellow" },
-          { label: "[OH⁻] Conc.", value: ohConc, unit: "mol/L", color: "green" },
-        ].map((card) => (
-          <div key={card.label} className="bg-gray-900 rounded-xl p-3 border border-gray-800">
-            <p className="text-xs text-gray-500 mb-1">{card.label}</p>
-            <p className={`text-lg font-bold text-${card.color}-400`}>
-              {card.value}<span className="text-xs ml-1 text-gray-400">{card.unit}</span>
-            </p>
-          </div>
-        ))}
-      </div>
+        {/* 4. DATA CARDS (2x2 Mobile / 1x4 Desktop) */}
+        <section className="[grid-area:cards] grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard label="pH Value" value={ph} theme={colorMap.purple} />
+          <StatCard label="Nature" value={ph < 7 ? "Acidic" : ph === 7 ? "Neutral" : "Basic"} theme={ph < 7 ? colorMap.red : ph === 7 ? colorMap.green : colorMap.blue} />
+          <StatCard label="[H⁺] Conc." value={hConc} unit="M" theme={colorMap.yellow} />
+          <StatCard label="[OH⁻] Conc." value={ohConc} unit="M" theme={colorMap.green} />
+        </section>
 
-      {/* Theory + Key Points */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-          <h3 className="font-semibold text-purple-400 mb-3">📖 Theory for CBSE Exam</h3>
-          <p className="text-sm text-gray-300 mb-2">
-            <strong className="text-white">pH</strong> is a measure of hydrogen ion concentration. pH = -log[H⁺]. The scale ranges from 0 to 14.
+        {/* 5. THEORY */}
+        <section className="[grid-area:theory] bg-slate-900/40 border border-white/5 rounded-3xl p-8">
+          <h3 className="text-lg font-bold text-purple-400 mb-4 flex items-center gap-2">📖 The pH Scale</h3>
+          <p className="text-sm text-slate-400 leading-relaxed">
+            The pH of a solution is the negative logarithm of the hydrogen ion concentration. 
+            A change of <strong>one pH unit</strong> represents a <strong>tenfold change</strong> in acidity. 
+            For example, a solution with pH 3 is 10 times more acidic than one with pH 4.
           </p>
-          <div className="bg-gray-950 rounded-lg p-3 font-mono text-center text-sm">
-            <span className="text-purple-400">pH + pOH = 14</span>
-          </div>
-        </div>
-        <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-          <h3 className="font-semibold text-yellow-400 mb-3">💡 Key Points to Remember</h3>
-          <ul className="space-y-2">
-            {[
-              "pH < 7 = Acidic, pH = 7 = Neutral, pH > 7 = Basic",
-              "Each pH unit = 10× change in H⁺ concentration",
-              "Strong acids: HCl, H₂SO₄ (pH close to 0)",
-              "Indicators: litmus, phenolphthalein, universal",
-            ].map((point, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-gray-300">
-                <span className="w-5 h-5 rounded-full bg-gray-800 flex items-center justify-center text-xs text-yellow-400 shrink-0 mt-0.5">{i + 1}</span>
-                {point}
-              </li>
-            ))}
+        </section>
+
+        {/* 6. KEY POINTS */}
+        <section className="[grid-area:points] bg-slate-900/40 border border-white/5 rounded-3xl p-8">
+          <h3 className="text-lg font-bold text-amber-500 mb-4">💡 Exam Tips</h3>
+          <ul className="text-sm text-slate-400 space-y-4">
+            <li className="flex gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-[10px] text-amber-500 border border-amber-500/20">1</span>
+              <span>Universal indicator gives a spectrum of colors for different pH values.</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-[10px] text-amber-500 border border-amber-500/20">2</span>
+              <span>Strong bases like NaOH have pH values approaching 14.</span>
+            </li>
           </ul>
-        </div>
+        </section>
       </div>
     </div>
   );
 };
+
+// Reusable Stat Card
+const StatCard = ({ label, value, unit = "", theme }) => (
+  <div className={`border rounded-2xl p-5 flex flex-col items-center justify-center text-center transition-transform hover:scale-[1.02] ${theme}`}>
+    <span className="text-[10px] font-black uppercase tracking-tighter opacity-60 mb-1">{label}</span>
+    <div className="text-xl font-black">{value}<span className="text-xs ml-0.5 opacity-40">{unit}</span></div>
+  </div>
+);
 
 export default PhTesting;

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 const SALTS = [
   {
-    name: "NaCl", fullName: "Sodium Chloride", color: "#e2e8f0",
+    name: "NaCl", fullName: "Sodium Chloride", color: "#f8fafc",
     appearance: "White crystalline solid",
     solubility: "Highly soluble in water",
     flameTest: { color: "Yellow", hex: "#fbbf24" },
@@ -27,10 +27,10 @@ const SALTS = [
     ]
   },
   {
-    name: "FeCl₃", fullName: "Ferric Chloride", color: "#f97316",
+    name: "FeCl₃", fullName: "Ferric Chloride", color: "#b45309",
     appearance: "Yellow-brown crystalline solid",
     solubility: "Soluble in water (yellow solution)",
-    flameTest: { color: "Orange", hex: "#f97316" },
+    flameTest: { color: "Orange-Red", hex: "#ea580c" },
     tests: [
       { reagent: "NaOH", observation: "Reddish-brown precipitate Fe(OH)₃", inference: "Fe³⁺ ion present" },
       { reagent: "AgNO₃", observation: "White precipitate of AgCl", inference: "Cl⁻ ion present" },
@@ -39,22 +39,10 @@ const SALTS = [
     ]
   },
   {
-    name: "Na₂CO₃", fullName: "Sodium Carbonate", color: "#94a3b8",
-    appearance: "White powder (washing soda)",
-    solubility: "Soluble in water (alkaline solution)",
-    flameTest: { color: "Yellow", hex: "#fbbf24" },
-    tests: [
-      { reagent: "Dilute HCl", observation: "Brisk effervescence of CO₂", inference: "CO₃²⁻ ion present" },
-      { reagent: "CaCl₂", observation: "White precipitate of CaCO₃", inference: "CO₃²⁻ confirmed" },
-      { reagent: "Litmus", observation: "Turns blue (alkaline)", inference: "Alkaline solution" },
-      { reagent: "Flame Test", observation: "Yellow flame", inference: "Na⁺ ion confirmed" },
-    ]
-  },
-  {
-    name: "ZnSO₄", fullName: "Zinc Sulphate", color: "#86efac",
+    name: "ZnSO₄", fullName: "Zinc Sulphate", color: "#f1f5f9",
     appearance: "White crystalline solid",
     solubility: "Soluble in water (colorless solution)",
-    flameTest: { color: "Blue-Green", hex: "#34d399" },
+    flameTest: { color: "Blue-Green", hex: "#2dd4bf" },
     tests: [
       { reagent: "NaOH", observation: "White precipitate of Zn(OH)₂", inference: "Zn²⁺ ion present" },
       { reagent: "NaOH (excess)", observation: "Precipitate dissolves (amphoteric)", inference: "Zn²⁺ confirmed" },
@@ -73,6 +61,14 @@ const SaltAnalysis = () => {
 
   const salt = SALTS[selectedSalt];
 
+  // Tailwind Class Mapper
+  const colorMap = {
+    purple: { text: "text-purple-400", bg: "bg-purple-900/20", border: "border-purple-800" },
+    blue: { text: "text-blue-400", bg: "bg-blue-900/20", border: "border-blue-800" },
+    green: { text: "text-emerald-400", bg: "bg-emerald-900/20", border: "border-emerald-800" },
+    yellow: { text: "text-amber-400", bg: "bg-amber-900/20", border: "border-amber-800" },
+  };
+
   const handleSelectSalt = (i) => {
     setSelectedSalt(i);
     setCurrentTest(null);
@@ -85,176 +81,143 @@ const SaltAnalysis = () => {
     if (!completedTests.includes(i)) {
       setCompletedTests([...completedTests, i]);
     }
-    if (salt.tests[i].reagent === "Flame Test") setShowFlame(true);
-    else setShowFlame(false);
+    setShowFlame(salt.tests[i].reagent === "Flame Test");
+  };
+
+  // Helper to extract Cation (e.g., "NaCl" -> "Na")
+  const getCation = (name) => {
+    const match = name.match(/^[A-Z][a-z]?/);
+    return match ? match[0] : name;
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-4">
+    <div className="min-h-screen bg-gray-950 text-slate-200 p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <button onClick={() => navigate("/lab")}
-            className="w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center hover:bg-gray-700"
-          >←</button>
-          <h1 className="text-xl font-bold">Salt Analysis 🧂</h1>
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <button onClick={() => navigate("/lab")} className="p-2 bg-gray-900 rounded-full border border-gray-800 hover:bg-gray-800 transition-colors">←</button>
+          <h1 className="text-2xl font-black tracking-tight">Qualitative Analysis 🧪</h1>
         </div>
-        <span className="text-xs bg-purple-900 text-purple-300 px-3 py-1 rounded-full border border-purple-700">
-          CBSE CLASS 11 CHEMISTRY
-        </span>
+        <div className="px-4 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-bold uppercase tracking-widest">
+          CBSE Class 11 Chemistry
+        </div>
       </div>
 
-      {/* Main Layout */}
-      <div className="flex gap-4 mb-4">
-        {/* Left - Salt selection */}
-        <div className="w-1/3 flex flex-col gap-4">
-          <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-            <h2 className="text-sm font-semibold text-purple-400 mb-3">🧂 Select Salt</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left - Selection */}
+        <div className="space-y-4">
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+            <h2 className="text-xs font-black text-gray-500 uppercase tracking-widest mb-4">Select Unknown Salt</h2>
             <div className="space-y-2">
               {SALTS.map((s, i) => (
                 <button key={i} onClick={() => handleSelectSalt(i)}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-3 ${
-                    selectedSalt === i
-                      ? "bg-purple-900/50 border border-purple-600"
-                      : "bg-gray-800 hover:bg-gray-700"
+                  className={`w-full text-left p-3 rounded-xl transition-all border flex items-center gap-4 ${
+                    selectedSalt === i ? "bg-purple-600/20 border-purple-500 shadow-lg shadow-purple-900/20" : "bg-gray-950 border-gray-800 hover:border-gray-600"
                   }`}>
-                  <span className="w-4 h-4 rounded-full shrink-0" style={{ backgroundColor: s.color }}></span>
+                  <div className="w-10 h-10 rounded-lg shadow-inner flex items-center justify-center font-bold" style={{ backgroundColor: s.color, color: '#000' }}>
+                    {s.name[0]}
+                  </div>
                   <div>
-                    <p className="font-bold text-white">{s.name}</p>
-                    <p className="text-xs text-gray-400">{s.fullName}</p>
+                    <p className="font-bold text-sm text-white">{s.name}</p>
+                    <p className="text-[10px] text-gray-500 uppercase tracking-tight">{s.fullName}</p>
                   </div>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Salt properties */}
-          <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-            <h2 className="text-sm font-semibold text-purple-400 mb-3">Properties</h2>
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: salt.color }}></span>
-                <span className="text-gray-300">{salt.appearance}</span>
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+            <h2 className="text-xs font-black text-gray-500 uppercase tracking-widest mb-3">Physical Properties</h2>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-4 h-4 rounded shadow-sm" style={{ backgroundColor: salt.color }}></div>
+                <span className="text-sm font-medium">{salt.appearance}</span>
               </div>
-              <p className="text-gray-400 text-xs">{salt.solubility}</p>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-xs text-gray-400">Flame:</span>
-                <span className="px-2 py-0.5 rounded text-xs font-bold text-black"
-                  style={{ backgroundColor: salt.flameTest.hex }}>
-                  {salt.flameTest.color}
-                </span>
-              </div>
+              <p className="text-xs text-gray-500 italic leading-relaxed">{salt.solubility}</p>
             </div>
           </div>
         </div>
 
-        {/* Right - Testing area */}
-        <div className="w-2/3 flex flex-col gap-4">
-          {/* Test tube visualization */}
-          <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-            <h2 className="text-sm font-semibold text-gray-400 mb-3">🧪 Testing Area</h2>
-            <div className="flex gap-6 items-center justify-center min-h-32">
-
-              {/* Salt test tube */}
-              <div className="flex flex-col items-center">
-                <div className="relative w-16 h-28">
-                  <div className="absolute inset-x-2 top-0 bottom-4 rounded-b-full border-2 border-purple-500 overflow-hidden">
-                    <div className="absolute bottom-0 left-0 right-0 h-16 rounded-b-full"
-                      style={{ backgroundColor: salt.color + "66" }}></div>
-                  </div>
-                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-4 rounded-b-full"
-                    style={{ backgroundColor: salt.color }}></div>
-                </div>
-                <p className="text-xs text-gray-400 mt-1">{salt.name}</p>
-              </div>
-
-              {/* Plus sign */}
-              {currentTest !== null && (
-                <>
-                  <span className="text-2xl text-gray-500">+</span>
-
-                  {/* Reagent test tube */}
-                  <div className="flex flex-col items-center">
-                    <div className="relative w-16 h-28">
-                      <div className="absolute inset-x-2 top-0 bottom-4 rounded-b-full border-2 border-blue-500 overflow-hidden">
-                        <div className="absolute bottom-0 left-0 right-0 h-16 rounded-b-full bg-blue-500/30"></div>
-                      </div>
+        {/* Center - Interactive Area */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-gray-900 border border-gray-800 rounded-[32px] p-8 min-h-[400px] flex flex-col">
+            <h2 className="text-xs font-black text-gray-500 uppercase tracking-widest mb-8 text-center">Experimental Setup</h2>
+            
+            <div className="flex flex-1 items-center justify-center gap-12">
+              {/* Test Tube Visualization */}
+              <div className="flex flex-col items-center gap-4">
+                <div className="relative w-20 h-40 group">
+                  <div className="absolute inset-0 border-4 border-slate-700/50 rounded-b-full overflow-hidden backdrop-blur-sm">
+                    {/* Solution level */}
+                    <div className="absolute bottom-0 left-0 right-0 h-24 transition-all duration-700 ease-out"
+                      style={{ backgroundColor: salt.color + "44" }}>
                     </div>
-                    <p className="text-xs text-gray-400 mt-1">{salt.tests[currentTest].reagent}</p>
-                  </div>
-
-                  <span className="text-2xl text-gray-500">→</span>
-
-                  {/* Result */}
-                  <div className="flex flex-col items-center">
-                    {showFlame ? (
-                      <div className="w-16 h-28 flex items-center justify-center">
-                        <div className="text-4xl animate-bounce">🔥</div>
-                      </div>
-                    ) : (
-                      <div className="relative w-16 h-28">
-                        <div className="absolute inset-x-2 top-0 bottom-4 rounded-b-full border-2 border-green-500 overflow-hidden">
-                          <div className="absolute bottom-0 left-0 right-0 h-20 rounded-b-full"
-                            style={{ backgroundColor: salt.color + "99" }}></div>
-                          {salt.tests[currentTest].observation.includes("precipitate") && (
-                            <div className="absolute bottom-0 left-0 right-0 h-8 rounded-b-full bg-white/40"></div>
-                          )}
-                          {salt.tests[currentTest].observation.includes("effervescence") && (
-                            <div className="absolute inset-0 flex flex-wrap gap-0.5 p-1 items-end justify-center">
-                              {[...Array(6)].map((_, i) => (
-                                <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/60 animate-bounce"
-                                  style={{ animationDelay: `${i * 0.1}s` }}></div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
+                    {/* Reaction Overlay */}
+                    {currentTest !== null && !showFlame && (
+                      <div className="absolute inset-0 flex flex-col justify-end">
+                        {salt.tests[currentTest].observation.toLowerCase().includes("precipitate") && (
+                          <div className="h-10 w-full animate-pulse bg-white/20 blur-sm"></div>
+                        )}
+                        {salt.tests[currentTest].observation.toLowerCase().includes("effervescence") && (
+                          <div className="absolute inset-0 flex items-center justify-center opacity-40">
+                             <div className="w-1 h-1 bg-white rounded-full animate-ping"></div>
+                             <div className="w-1 h-1 bg-white rounded-full animate-ping delay-75"></div>
+                          </div>
+                        )}
                       </div>
                     )}
-                    <p className="text-xs text-gray-400 mt-1">Result</p>
                   </div>
-                </>
+                </div>
+                <span className="text-[10px] font-black uppercase text-gray-600">Sample Tube</span>
+              </div>
+
+              {currentTest !== null && (
+                <div className="flex flex-col items-center animate-in fade-in zoom-in duration-300">
+                   {showFlame ? (
+                    <div className="relative">
+                      <div className="text-6xl animate-bounce">🔥</div>
+                      <div className="absolute inset-0 blur-xl opacity-50 rounded-full" style={{ backgroundColor: salt.flameTest.hex }}></div>
+                    </div>
+                  ) : (
+                    <div className="text-3xl text-gray-700 font-light">＋</div>
+                  )}
+                </div>
               )}
 
               {currentTest === null && (
-                <div className="text-center text-gray-500">
-                  <p className="text-4xl mb-2">👇</p>
-                  <p className="text-sm">Select a test below</p>
+                <div className="text-center text-gray-600 max-w-[200px]">
+                  <p className="text-xs uppercase font-black tracking-widest mb-2">Ready for analysis</p>
+                  <p className="text-sm italic">Add a reagent to observe chemical changes.</p>
                 </div>
               )}
             </div>
 
-            {/* Observation box */}
+            {/* Results Panel */}
             {currentTest !== null && (
-              <div className="mt-3 grid grid-cols-2 gap-3">
-                <div className="bg-blue-950/50 rounded-lg p-3 border border-blue-800">
-                  <p className="text-xs text-blue-400 font-semibold mb-1">OBSERVATION</p>
-                  <p className="text-sm text-white">{salt.tests[currentTest].observation}</p>
+              <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in slide-in-from-bottom-4">
+                <div className="bg-blue-500/5 border border-blue-500/20 rounded-2xl p-4">
+                  <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Observation</p>
+                  <p className="text-sm font-medium text-white">{salt.tests[currentTest].observation}</p>
                 </div>
-                <div className="bg-green-950/50 rounded-lg p-3 border border-green-800">
-                  <p className="text-xs text-green-400 font-semibold mb-1">INFERENCE</p>
-                  <p className="text-sm text-white">{salt.tests[currentTest].inference}</p>
+                <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-4">
+                  <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-2">Inference</p>
+                  <p className="text-sm font-medium text-white">{salt.tests[currentTest].inference}</p>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Test buttons */}
-          <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-            <h2 className="text-sm font-semibold text-gray-400 mb-3">
-              Chemical Tests ({completedTests.length}/{salt.tests.length} done)
-            </h2>
-            <div className="grid grid-cols-2 gap-2">
+          {/* Test Controls */}
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+            <h2 className="text-xs font-black text-gray-500 uppercase tracking-widest mb-4">Chemical Reagents</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {salt.tests.map((test, i) => (
                 <button key={i} onClick={() => handleRunTest(i)}
-                  className={`px-3 py-2 rounded-lg text-sm text-left flex items-center justify-between ${
-                    currentTest === i
-                      ? "bg-purple-600 text-white"
-                      : completedTests.includes(i)
-                      ? "bg-green-900/40 border border-green-700 text-green-300"
-                      : "bg-gray-800 hover:bg-gray-700 text-gray-300"
+                  className={`p-3 rounded-xl text-xs font-bold transition-all border flex flex-col gap-2 items-center ${
+                    currentTest === i ? "bg-purple-600 border-purple-400 text-white" : "bg-gray-950 border-gray-800 text-gray-400 hover:border-gray-600"
                   }`}>
-                  <span>+ {test.reagent}</span>
-                  {completedTests.includes(i) && <span className="text-green-400">✓</span>}
+                  <span>{test.reagent}</span>
+                  {completedTests.includes(i) && <span className="text-[10px] text-emerald-500">Completed ✓</span>}
                 </button>
               ))}
             </div>
@@ -262,53 +225,40 @@ const SaltAnalysis = () => {
         </div>
       </div>
 
-      {/* 4 Data Cards */}
-      <div className="grid grid-cols-4 gap-3 mb-4">
-        {[
-          { label: "Salt", value: salt.name, unit: "", color: "purple" },
-          { label: "Tests Done", value: `${completedTests.length}/${salt.tests.length}`, unit: "", color: "blue" },
-          { label: "Cation", value: salt.name.replace(/[₀-₉]/g, '').split(/(?=[A-Z])/)[0], unit: "", color: "green" },
-          { label: "Flame Color", value: salt.flameTest.color, unit: "", color: "yellow" },
-        ].map((card) => (
-          <div key={card.label} className="bg-gray-900 rounded-xl p-3 border border-gray-800">
-            <p className="text-xs text-gray-500 mb-1">{card.label}</p>
-            <p className={`text-xl font-bold text-${card.color}-400`}>
-              {card.value}
-            </p>
-          </div>
-        ))}
+      {/* Summary Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+        <SummaryCard label="Identification" val={salt.name} color="purple" map={colorMap} />
+        <SummaryCard label="Progress" val={`${completedTests.length}/${salt.tests.length}`} color="blue" map={colorMap} />
+        <SummaryCard label="Confirmed Cation" val={getCation(salt.name)} color="green" map={colorMap} />
+        <SummaryCard label="Flame Test" val={salt.flameTest.color} color="yellow" map={colorMap} />
       </div>
 
-      {/* Theory + Key Points */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-          <h3 className="font-semibold text-purple-400 mb-3">📖 Theory for CBSE Exam</h3>
-          <p className="text-sm text-gray-300 mb-2">
-            <strong className="text-white">Salt Analysis</strong> (Systematic Qualitative Analysis) identifies cations and anions in unknown salts through systematic chemical tests.
-          </p>
-          <p className="text-sm text-gray-400">
-            Tests include: dry tests (appearance, flame), wet tests (acid group, basic radical).
-          </p>
-        </div>
-        <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-          <h3 className="font-semibold text-yellow-400 mb-3">💡 Key Points to Remember</h3>
-          <ul className="space-y-2">
-            {[
-              "Flame test: Na=yellow, K=violet, Cu=green, Ca=brick red",
-              "AgNO₃ test: white ppt=Cl⁻, yellow=I⁻, pale yellow=Br⁻",
-              "NaOH test identifies cations (Cu²⁺=blue, Fe³⁺=brown)",
-              "BaCl₂ gives white ppt with SO₄²⁻ ions",
-            ].map((point, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-gray-300">
-                <span className="w-5 h-5 rounded-full bg-gray-800 flex items-center justify-center text-xs text-yellow-400 shrink-0 mt-0.5">{i + 1}</span>
-                {point}
-              </li>
-            ))}
-          </ul>
+      {/* Educational Footer */}
+      <div className="mt-8 bg-gray-900/50 border border-gray-800 rounded-2xl p-6">
+        <h3 className="text-lg font-bold text-purple-400 mb-4 flex items-center gap-2">
+          📖 Exam Theory: Systematic Analysis
+        </h3>
+        
+        <div className="grid md:grid-cols-2 gap-8 mt-4">
+          <div className="text-sm text-gray-400 space-y-2 leading-relaxed">
+            <p><strong>Cation Groups:</strong> Salts are analyzed by dividing cations into groups (0 to VI) based on their solubility products ($K_{sp}$).</p>
+            <p><strong>Common Errors:</strong> Always perform the flame test on a clean platinum wire. Use concentrated $HCl$ to make a paste of the salt first.</p>
+          </div>
+          <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4">
+            <p className="text-xs font-black text-amber-500 uppercase mb-2">🔥 Lab Tip</p>
+            <p className="text-sm italic">Silver Nitrate ($AgNO_3$) is the standard reagent for halides. AgCl is white, AgBr is pale yellow, and AgI is bright yellow.</p>
+          </div>
         </div>
       </div>
     </div>
   );
 };
+
+const SummaryCard = ({ label, val, color, map }) => (
+  <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4">
+    <p className="text-[10px] text-gray-500 uppercase font-black mb-1">{label}</p>
+    <p className={`text-lg font-black ${map[color].text}`}>{val}</p>
+  </div>
+);
 
 export default SaltAnalysis;

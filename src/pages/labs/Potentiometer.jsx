@@ -15,6 +15,15 @@ const Potentiometer = () => {
   const galvReading = (parseFloat(voltageAtJockey) - unknownEmf).toFixed(3);
   const isBalanced = Math.abs(parseFloat(galvReading)) < 0.05;
 
+  // Color Map for Tailwind
+  const colorMap = {
+    yellow: "text-amber-400 bg-amber-900/40 accent-amber-500 border-amber-500/20",
+    blue: "text-blue-400 bg-blue-900/40 accent-blue-500 border-blue-500/20",
+    purple: "text-purple-400 bg-purple-900/40 accent-purple-500 border-purple-500/20",
+    green: "text-emerald-400 bg-emerald-900/40 accent-emerald-500 border-emerald-500/20",
+    red: "text-rose-400 bg-rose-900/40 accent-rose-500 border-rose-500/20"
+  };
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -22,299 +31,206 @@ const Potentiometer = () => {
     const H = canvas.height;
     ctx.clearRect(0, 0, W, H);
 
-    const wireStartX = 80;
-    const wireEndX = W - 80;
-    const wireY = 120;
+    const wireStartX = 60;
+    const wireEndX = W - 60;
+    const wireY = 80;
     const wireLen = wireEndX - wireStartX;
 
-    // Driver battery
+    // 1. Driver Circuit (Top Loop)
     ctx.beginPath();
     ctx.moveTo(wireStartX, wireY);
-    ctx.lineTo(wireStartX, 60);
-    ctx.lineTo(wireEndX, 60);
+    ctx.lineTo(wireStartX, 30);
+    ctx.lineTo(wireEndX, 30);
     ctx.lineTo(wireEndX, wireY);
-    ctx.strokeStyle = "#7c3aed";
+    ctx.strokeStyle = "#475569";
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Battery symbol
+    // Driver Battery Symbol
     ctx.beginPath();
-    ctx.moveTo(wireStartX + 20, 50);
-    ctx.lineTo(wireStartX + 20, 70);
-    ctx.strokeStyle = "#f59e0b";
+    ctx.moveTo(W/2 - 10, 20); ctx.lineTo(W/2 - 10, 40); // Long plate (+)
+    ctx.moveTo(W/2 + 5, 25); ctx.lineTo(W/2 + 5, 35);   // Short plate (-)
+    ctx.strokeStyle = "#fbbf24";
     ctx.lineWidth = 3;
     ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(wireStartX + 30, 55);
-    ctx.lineTo(wireStartX + 30, 65);
-    ctx.strokeStyle = "#f59e0b";
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.fillStyle = "#f59e0b";
-    ctx.font = "11px monospace";
-    ctx.textAlign = "left";
-    ctx.fillText(`E=${driverEmf}V`, wireStartX + 38, 65);
 
-    // Resistance in driver circuit
-    ctx.fillStyle = "#1e293b";
-    ctx.fillRect(wireEndX - 60, 48, 50, 24);
-    ctx.strokeStyle = "#60a5fa";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(wireEndX - 60, 48, 50, 24);
-    ctx.fillStyle = "#60a5fa";
-    ctx.font = "10px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText("R", wireEndX - 35, 63);
-
-    // Potentiometer wire
+    // 2. Main Potentiometer Wire
     ctx.beginPath();
     ctx.moveTo(wireStartX, wireY);
     ctx.lineTo(wireEndX, wireY);
-    ctx.strokeStyle = "#e2e8f0";
-    ctx.lineWidth = 4;
+    ctx.strokeStyle = "#94a3b8";
+    ctx.lineWidth = 6;
     ctx.stroke();
 
-    // Wire markings
+    // Rulers/Markings
     for (let i = 0; i <= 10; i++) {
       const x = wireStartX + (i / 10) * wireLen;
-      ctx.beginPath();
-      ctx.moveTo(x, wireY - 8);
-      ctx.lineTo(x, wireY + 8);
-      ctx.strokeStyle = "#475569";
-      ctx.lineWidth = 1;
-      ctx.stroke();
-      ctx.fillStyle = "#64748b";
-      ctx.font = "9px monospace";
+      ctx.fillStyle = "#475569";
+      ctx.fillRect(x - 1, wireY + 8, 2, 8);
+      ctx.font = "10px Inter";
       ctx.textAlign = "center";
-      ctx.fillText(`${i * 10}`, x, wireY + 20);
+      ctx.fillText(`${i * (wireLength/10)}`, x, wireY + 28);
     }
 
-    ctx.fillStyle = "#94a3b8";
-    ctx.font = "10px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText("cm", wireEndX + 20, wireY + 20);
-
-    // Jockey position
+    // 3. Jockey and Galvanometer (Secondary Circuit)
     const jx = wireStartX + (jockeyPos / wireLength) * wireLen;
+    
+    // Jockey Arrow
     ctx.beginPath();
-    ctx.arc(jx, wireY, 8, 0, Math.PI * 2);
+    ctx.moveTo(jx, wireY);
+    ctx.lineTo(jx - 8, wireY + 20);
+    ctx.lineTo(jx + 8, wireY + 20);
+    ctx.closePath();
     ctx.fillStyle = "#fbbf24";
     ctx.fill();
-    ctx.strokeStyle = "#92400e";
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.fillStyle = "#000";
-    ctx.font = "bold 9px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText("J", jx, wireY + 3);
 
-    // Jockey wire going down
+    // Connection from wire start to Unknown Battery
     ctx.beginPath();
-    ctx.moveTo(jx, wireY + 8);
-    ctx.lineTo(jx, wireY + 60);
-    ctx.strokeStyle = isBalanced ? "#34d399" : "#f87171";
-    ctx.lineWidth = 1.5;
+    ctx.moveTo(wireStartX, wireY);
+    ctx.lineTo(wireStartX, 220);
+    ctx.lineTo(wireStartX + 100, 220);
+    ctx.strokeStyle = "#7c3aed";
     ctx.stroke();
 
-    // Galvanometer
+    // Unknown Battery
     ctx.beginPath();
-    ctx.arc(jx, wireY + 85, 22, 0, Math.PI * 2);
-    ctx.fillStyle = "#1e293b";
+    ctx.moveTo(wireStartX + 110, 210); ctx.lineTo(wireStartX + 110, 230);
+    ctx.moveTo(wireStartX + 120, 215); ctx.lineTo(wireStartX + 120, 225);
+    ctx.strokeStyle = "#a78bfa";
+    ctx.stroke();
+
+    // Galvanometer Circle
+    const gX = wireStartX + 220;
+    const gY = 220;
+    ctx.beginPath();
+    ctx.arc(gX, gY, 25, 0, Math.PI * 2);
+    ctx.fillStyle = "#0f172a";
     ctx.fill();
-    ctx.strokeStyle = isBalanced ? "#34d399" : "#f87171";
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = isBalanced ? "#10b981" : "#f43f5e";
+    ctx.lineWidth = 3;
     ctx.stroke();
-    ctx.fillStyle = isBalanced ? "#34d399" : "#f87171";
-    ctx.font = "bold 12px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText("G", jx, wireY + 89);
 
-    // Galvanometer needle
-    const needleAngle = parseFloat(galvReading) * 0.5;
+    // Needle logic
     ctx.save();
-    ctx.translate(jx, wireY + 85);
-    ctx.rotate(Math.max(-0.8, Math.min(0.8, needleAngle)));
+    ctx.translate(gX, gY);
+    const angle = Math.max(-1, Math.min(1, parseFloat(galvReading) * 0.4));
+    ctx.rotate(angle);
     ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(0, -16);
-    ctx.strokeStyle = isBalanced ? "#34d399" : "#f87171";
-    ctx.lineWidth = 2;
+    ctx.moveTo(0, 0); ctx.lineTo(0, -18);
+    ctx.strokeStyle = "white";
     ctx.stroke();
     ctx.restore();
 
-    // Unknown EMF battery
-    const galvBottom = wireY + 85 + 22;
+    // Complete the loop to Jockey
     ctx.beginPath();
-    ctx.moveTo(jx, galvBottom);
-    ctx.lineTo(jx, galvBottom + 30);
-    ctx.lineTo(wireStartX + 60, galvBottom + 30);
-    ctx.lineTo(wireStartX + 60, wireY);
-    ctx.strokeStyle = "#a78bfa";
-    ctx.lineWidth = 1.5;
+    ctx.moveTo(wireStartX + 120, 220);
+    ctx.lineTo(gX - 25, 220);
+    ctx.moveTo(gX + 25, 220);
+    ctx.lineTo(jx, 220);
+    ctx.lineTo(jx, wireY + 20);
+    ctx.strokeStyle = "#7c3aed";
     ctx.stroke();
 
-    // Unknown battery symbol
-    ctx.beginPath();
-    ctx.moveTo(wireStartX + 50, galvBottom + 20);
-    ctx.lineTo(wireStartX + 50, galvBottom + 40);
-    ctx.strokeStyle = "#a78bfa";
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(wireStartX + 60, galvBottom + 25);
-    ctx.lineTo(wireStartX + 60, galvBottom + 35);
-    ctx.strokeStyle = "#a78bfa";
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.fillStyle = "#a78bfa";
-    ctx.font = "11px monospace";
-    ctx.textAlign = "left";
-    ctx.fillText(`ε=${unknownEmf}V`, wireStartX + 70, galvBottom + 35);
-
-    // Balancing length indicator
-    const blx = wireStartX + (parseFloat(balancingLength) / wireLength) * wireLen;
-    if (blx <= wireEndX) {
-      ctx.beginPath();
-      ctx.moveTo(blx, wireY - 15);
-      ctx.lineTo(blx, wireY + 15);
-      ctx.strokeStyle = "#34d399";
-      ctx.lineWidth = 2;
-      ctx.setLineDash([3, 3]);
-      ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.fillStyle = "#34d399";
-      ctx.font = "10px monospace";
-      ctx.textAlign = "center";
-      ctx.fillText(`L=${balancingLength}cm`, blx, wireY - 20);
-    }
-
-    // Status
-    ctx.fillStyle = isBalanced ? "#34d399" : "#f87171";
-    ctx.font = "bold 13px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText(
-      isBalanced ? "✓ NULL DEFLECTION — BALANCED!" : `Galvanometer: ${galvReading}V`,
-      W / 2, H - 15
-    );
-
-  }, [driverEmf, wireLength, unknownEmf, jockeyPos]);
+  }, [driverEmf, wireLength, unknownEmf, jockeyPos, isBalanced, galvReading]);
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-4">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <button onClick={() => navigate("/lab")}
-            className="w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center hover:bg-gray-700"
-          >←</button>
-          <h1 className="text-xl font-bold">Potentiometer ⚡</h1>
+    <div className="min-h-screen bg-slate-950 text-white pb-10">
+      {/* Navbar */}
+      <nav className="h-16 border-b border-white/10 flex items-center px-6 justify-between bg-slate-950/50 backdrop-blur-md sticky top-0 z-50">
+        <div className="flex items-center gap-4">
+          <button onClick={() => navigate("/lab")} className="p-2 bg-slate-900 rounded-full border border-white/10 hover:bg-slate-800 transition-colors">←</button>
+          <h1 className="font-bold text-lg tracking-tight">Potentiometer Simulator ⚡</h1>
         </div>
-        <span className="text-xs bg-purple-900 text-purple-300 px-3 py-1 rounded-full border border-purple-700">
-          CBSE CLASS 12 PHYSICS
-        </span>
-      </div>
+        <div className="hidden sm:block text-[10px] font-black bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 px-3 py-1 rounded-full tracking-[0.2em]">CBSE CLASS 12</div>
+      </nav>
 
-      {/* Main Layout */}
-      <div className="flex gap-4 mb-4">
-        {/* Left Controls */}
-        <div className="w-1/3 flex flex-col gap-4">
-          <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-            <h2 className="text-sm font-semibold text-purple-400 mb-4">⚙️ Controls</h2>
+      {/* Responsive Grid */}
+      <div className="max-w-[1400px] mx-auto p-4 md:p-8 grid gap-6 
+        grid-cols-1 
+        lg:grid-cols-[380px_1fr] 
+        [grid-template-areas:'circuit''controls''calc''cards''theory''points'] 
+        lg:[grid-template-areas:'controls_circuit''calc_circuit''cards_cards''theory_points']">
 
-            {[
-              { label: "Driver EMF (V)", value: driverEmf, set: setDriverEmf, min: 1, max: 12, color: "yellow", step: 0.1 },
-              { label: "Wire Length (cm)", value: wireLength, set: setWireLength, min: 50, max: 200, color: "blue", step: 1 },
-              { label: "Unknown EMF (V)", value: unknownEmf, set: setUnknownEmf, min: 0.1, max: 5, color: "purple", step: 0.1 },
-              { label: "Jockey Position (cm)", value: jockeyPos, set: setJockeyPos, min: 0, max: wireLength, color: "green", step: 0.5 },
-            ].map((item) => (
-              <div key={item.label} className="mb-3">
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm text-gray-400">{item.label}</span>
-                  <span className={`text-sm font-bold text-${item.color}-400 bg-${item.color}-900/40 px-2 py-0.5 rounded`}>
-                    {item.value}
-                  </span>
-                </div>
-                <input type="range" min={item.min} max={item.max}
-                  step={item.step} value={item.value}
-                  onChange={(e) => item.set(Number(e.target.value))}
-                  className={`w-full accent-${item.color}-500`}/>
-              </div>
-            ))}
-
-            <button
-              onClick={() => setJockeyPos(Math.min(parseFloat(balancingLength), wireLength))}
-              className="w-full py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-medium mt-2"
-            >⚖️ Auto Balance</button>
+        {/* 1. CIRCUIT DIAGRAM */}
+        <section className="[grid-area:circuit] bg-slate-900/40 border border-white/5 rounded-3xl p-6 flex flex-col min-h-[400px] shadow-2xl">
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Interactive Circuit</span>
+          <canvas ref={canvasRef} width={700} height={320} className="w-full h-auto bg-slate-950/50 rounded-2xl border border-white/5" />
+          <div className={`mt-auto text-center p-3 rounded-xl font-mono text-sm border ${isBalanced ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-slate-800 border-white/5 text-slate-400'}`}>
+            {isBalanced ? "● NULL POINT DETECTED" : `Galvanometer Deflection: ${galvReading}V`}
           </div>
+        </section>
 
-          {/* Formula */}
-          <div className="bg-purple-950/50 rounded-xl p-4 border border-purple-800">
-            <p className="text-xs text-purple-400 font-semibold mb-2">FORMULA</p>
-            <p className="font-mono text-xs text-purple-300 mb-1">k = E/L (potential gradient)</p>
-            <p className="font-mono text-xs text-purple-300 mb-2">ε = k × l</p>
-            <div className="text-xs text-gray-400 space-y-1 font-mono">
-              <p>k = {driverEmf}/{wireLength} = {potentialGradient.toFixed(4)} V/cm</p>
-              <p>l = {balancingLength} cm</p>
-              <p className="text-white font-bold">ε = {unknownEmf} V</p>
-            </div>
+        {/* 2. CONTROLS */}
+        <section className="[grid-area:controls] bg-slate-900/60 border border-white/10 rounded-3xl p-6">
+          <h2 className="text-xl font-bold mb-6 text-indigo-400 underline decoration-indigo-500/30 underline-offset-8">Setup Parameters</h2>
+          <div className="space-y-5">
+            <ControlSlider label="Driver EMF" value={driverEmf} unit="V" set={setDriverEmf} min={1} max={12} step={0.1} theme={colorMap.yellow} />
+            <ControlSlider label="Wire Length" value={wireLength} unit="cm" set={setWireLength} min={50} max={200} step={1} theme={colorMap.blue} />
+            <ControlSlider label="Unknown EMF" value={unknownEmf} unit="V" set={setUnknownEmf} min={0.1} max={5} step={0.1} theme={colorMap.purple} />
+            <ControlSlider label="Jockey Position" value={jockeyPos} unit="cm" set={setJockeyPos} min={0} max={wireLength} step={0.5} theme={colorMap.green} />
+            
+            <button onClick={() => setJockeyPos(Math.min(parseFloat(balancingLength), wireLength))}
+              className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-bold transition-all shadow-lg shadow-indigo-600/20 mt-2">
+              ⚖️ Auto-Align Jockey
+            </button>
           </div>
-        </div>
+        </section>
 
-        {/* Right - Circuit */}
-        <div className="w-2/3 bg-gray-900 rounded-xl border border-gray-800 p-4">
-          <h2 className="text-sm font-semibold text-gray-400 mb-3">Potentiometer Circuit</h2>
-          <canvas ref={canvasRef} width={600} height={320}
-            className="w-full rounded-lg bg-gray-950"/>
-        </div>
-      </div>
+        {/* 3. CALCULATION */}
+        <section className="[grid-area:calc] bg-indigo-600/10 border border-indigo-500/20 rounded-3xl p-6 flex flex-col justify-center text-center">
+           <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">Potential Gradient (k)</p>
+           <div className="text-3xl font-black mb-1">{potentialGradient.toFixed(4)} <span className="text-sm opacity-50">V/cm</span></div>
+           <p className="text-xs text-slate-500 font-mono">ε = k × L = {potentialGradient.toFixed(3)} × {balancingLength}</p>
+        </section>
 
-      {/* 4 Data Cards */}
-      <div className="grid grid-cols-4 gap-3 mb-4">
-        {[
-          { label: "Potential Gradient", value: potentialGradient.toFixed(4), unit: "V/cm", color: "purple" },
-          { label: "Balancing Length", value: balancingLength, unit: "cm", color: "green" },
-          { label: "Voltage at Jockey", value: voltageAtJockey, unit: "V", color: "blue" },
-          { label: "Galvanometer", value: galvReading, unit: "V", color: isBalanced ? "green" : "red" },
-        ].map((card) => (
-          <div key={card.label} className="bg-gray-900 rounded-xl p-3 border border-gray-800">
-            <p className="text-xs text-gray-500 mb-1">{card.label}</p>
-            <p className={`text-xl font-bold text-${card.color}-400`}>
-              {card.value}<span className="text-sm ml-1 text-gray-400">{card.unit}</span>
-            </p>
-          </div>
-        ))}
-      </div>
+        {/* 4. DATA CARDS (2x2 Mobile / 1x4 Desktop) */}
+        <section className="[grid-area:cards] grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard label="Gradient" value={potentialGradient.toFixed(3)} unit="V/cm" theme={colorMap.purple} />
+          <StatCard label="Null Point" value={balancingLength} unit="cm" theme={colorMap.green} />
+          <StatCard label="Jockey V" value={voltageAtJockey} unit="V" theme={colorMap.blue} />
+          <StatCard label="Deflection" value={galvReading} unit="V" theme={isBalanced ? colorMap.green : colorMap.red} />
+        </section>
 
-      {/* Theory + Key Points */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-          <h3 className="font-semibold text-purple-400 mb-3">📖 Theory for CBSE Exam</h3>
-          <p className="text-sm text-gray-300 mb-2">
-            A <strong className="text-white">potentiometer</strong> measures EMF without drawing any current from the source. It works on the principle of null deflection.
+        {/* 5. THEORY */}
+        <section className="[grid-area:theory] bg-slate-900/40 border border-white/5 rounded-3xl p-8 leading-relaxed">
+          <h3 className="text-lg font-bold mb-4 text-slate-200">The Principle</h3>
+          <p className="text-sm text-slate-400">
+            A Potentiometer works on the principle that the potential drop across any portion of the wire is <strong>directly proportional</strong> to its length, provided the wire has a uniform cross-section and a constant current flows through it.
           </p>
-          <div className="bg-gray-950 rounded-lg p-3 font-mono text-center text-sm">
-            <span className="text-purple-400">ε = k × l</span>
-          </div>
-        </div>
-        <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-          <h3 className="font-semibold text-yellow-400 mb-3">💡 Key Points to Remember</h3>
-          <ul className="space-y-2">
-            {[
-              "Potentiometer measures EMF accurately (no current drawn)",
-              "Potential gradient k = V/L (V per unit length)",
-              "Balance point: galvanometer shows zero deflection",
-              "Driver EMF must be greater than unknown EMF",
-            ].map((point, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-gray-300">
-                <span className="w-5 h-5 rounded-full bg-gray-800 flex items-center justify-center text-xs text-yellow-400 shrink-0 mt-0.5">{i + 1}</span>
-                {point}
-              </li>
-            ))}
+        </section>
+
+        {/* 6. KEY POINTS */}
+        <section className="[grid-area:points] bg-slate-900/40 border border-white/5 rounded-3xl p-8">
+          <h3 className="text-lg font-bold mb-4 text-slate-200">Pro-Tips</h3>
+          <ul className="text-sm text-slate-400 space-y-3">
+            <li className="flex gap-2"><span>•</span> Driver EMF must be greater than unknown EMF.</li>
+            <li className="flex gap-2"><span>•</span> Null deflection means no current is drawn from the test cell.</li>
+            <li className="flex gap-2"><span>•</span> High sensitivity requires a low potential gradient.</li>
           </ul>
-        </div>
+        </section>
       </div>
     </div>
   );
 };
+
+// Sub-components for cleaner JSX
+const ControlSlider = ({ label, value, unit, set, min, max, step, theme }) => (
+  <div>
+    <div className="flex justify-between mb-2">
+      <label className="text-xs font-bold text-slate-500 uppercase">{label}</label>
+      <span className={`text-sm font-bold ${theme.split(' ')[0]}`}>{value}{unit}</span>
+    </div>
+    <input type="range" min={min} max={max} step={step} value={value} 
+      onChange={(e) => set(Number(e.target.value))} 
+      className={`w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer ${theme.split(' ')[2]}`} />
+  </div>
+);
+
+const StatCard = ({ label, value, unit, theme }) => (
+  <div className={`bg-slate-900/60 border ${theme.split(' ')[3]} rounded-2xl p-6 flex flex-col items-center justify-center`}>
+    <span className="text-[10px] font-bold text-slate-500 uppercase mb-1">{label}</span>
+    <div className={`text-xl font-bold ${theme.split(' ')[0]}`}>{value}<span className="text-xs ml-0.5 opacity-50">{unit}</span></div>
+  </div>
+);
 
 export default Potentiometer;

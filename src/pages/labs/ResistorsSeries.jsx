@@ -9,273 +9,206 @@ const ResistorsSeries = () => {
   const [r3, setR3] = useState(30);
   const [mode, setMode] = useState("series");
 
+  // Physics Logic
   const totalSeries = r1 + r2 + r3;
-  const totalParallel = 1 / (1/r1 + 1/r2 + 1/r3);
+  const totalParallel = 1 / (1 / r1 + 1 / r2 + 1 / r3);
   const totalR = mode === "series" ? totalSeries : totalParallel;
   const totalCurrent = (voltage / totalR).toFixed(3);
 
-  const i1 = mode === "series"
-    ? totalCurrent
-    : (voltage / r1).toFixed(3);
-  const i2 = mode === "series"
-    ? totalCurrent
-    : (voltage / r2).toFixed(3);
-  const i3 = mode === "series"
-    ? totalCurrent
-    : (voltage / r3).toFixed(3);
+  const i1 = mode === "series" ? totalCurrent : (voltage / r1).toFixed(3);
+  const i2 = mode === "series" ? totalCurrent : (voltage / r2).toFixed(3);
+  const i3 = mode === "series" ? totalCurrent : (voltage / r3).toFixed(3);
 
   const v1 = (i1 * r1).toFixed(2);
   const v2 = (i2 * r2).toFixed(2);
   const v3 = (i3 * r3).toFixed(2);
 
+  // Tailwind Class Mapper (Fixes the purging issue)
+  const colorMap = {
+    green: { text: "text-emerald-400", bg: "bg-emerald-900/20", border: "border-emerald-800" },
+    blue: { text: "text-blue-400", bg: "bg-blue-900/20", border: "border-blue-800" },
+    red: { text: "text-red-400", bg: "bg-red-900/20", border: "border-red-800" },
+    purple: { text: "text-purple-400", bg: "bg-purple-900/20", border: "border-purple-800" },
+    yellow: { text: "text-amber-400", bg: "bg-amber-900/20", border: "border-amber-800" },
+  };
+
   const CircuitDiagram = () => (
-    <svg viewBox="0 0 600 300" className="w-full h-64">
+    <svg viewBox="0 0 600 300" className="w-full h-64 bg-gray-950 rounded-xl">
       {mode === "series" ? (
         <>
-          {/* Battery */}
-          <line x1="40" y1="150" x2="40" y2="80" stroke="#7c3aed" strokeWidth="2"/>
-          <line x1="40" y1="80" x2="560" y2="80" stroke="#7c3aed" strokeWidth="2"/>
-          <line x1="560" y1="80" x2="560" y2="150" stroke="#7c3aed" strokeWidth="2"/>
-          <line x1="40" y1="150" x2="40" y2="220" stroke="#7c3aed" strokeWidth="2"/>
-          <line x1="40" y1="220" x2="560" y2="220" stroke="#7c3aed" strokeWidth="2"/>
-          <line x1="560" y1="220" x2="560" y2="150" stroke="#7c3aed" strokeWidth="2"/>
-
+          {/* Main Loop */}
+          <rect x="40" y="80" width="520" height="140" fill="none" stroke="#4c1d95" strokeWidth="2" />
           {/* Battery symbol */}
-          <line x1="30" y1="140" x2="50" y2="140" stroke="#f59e0b" strokeWidth="3"/>
-          <line x1="35" y1="155" x2="45" y2="155" stroke="#f59e0b" strokeWidth="2"/>
-          <text x="55" y="152" fill="#f59e0b" fontSize="12">{voltage}V</text>
+          <rect x="30" y="130" width="20" height="40" fill="#030712" />
+          <line x1="30" y1="140" x2="50" y2="140" stroke="#f59e0b" strokeWidth="4" />
+          <line x1="35" y1="155" x2="45" y2="155" stroke="#f59e0b" strokeWidth="2" />
+          <text x="60" y="152" fill="#f59e0b" fontSize="14" fontWeight="bold">{voltage}V</text>
 
-          {/* R1 */}
-          <rect x="120" y="68" width="80" height="24" fill="#1e293b" stroke="#34d399" strokeWidth="2" rx="4"/>
-          <text x="160" y="84" fill="#34d399" fontSize="11" textAnchor="middle">R₁={r1}Ω</text>
-          <text x="160" y="60" fill="#94a3b8" fontSize="10" textAnchor="middle">I={i1}A</text>
-
-          {/* R2 */}
-          <rect x="260" y="68" width="80" height="24" fill="#1e293b" stroke="#60a5fa" strokeWidth="2" rx="4"/>
-          <text x="300" y="84" fill="#60a5fa" fontSize="11" textAnchor="middle">R₂={r2}Ω</text>
-          <text x="300" y="60" fill="#94a3b8" fontSize="10" textAnchor="middle">I={i2}A</text>
-
-          {/* R3 */}
-          <rect x="400" y="68" width="80" height="24" fill="#1e293b" stroke="#f87171" strokeWidth="2" rx="4"/>
-          <text x="440" y="84" fill="#f87171" fontSize="11" textAnchor="middle">R₃={r3}Ω</text>
-          <text x="440" y="60" fill="#94a3b8" fontSize="10" textAnchor="middle">I={i3}A</text>
-
-          {/* Current dots */}
-          {[80, 200, 340, 480, 530].map((x, i) => (
-            <circle key={i} cx={x} cy="80" r="4" fill="#a78bfa"/>
-          ))}
-          {[80, 200, 340, 480, 530].map((x, i) => (
-            <circle key={i} cx={x} cy="220" r="4" fill="#a78bfa"/>
+          {/* Resistors */}
+          {[
+            { x: 120, label: "R₁", val: r1, color: "#34d399", i: i1 },
+            { x: 260, label: "R₂", val: r2, color: "#60a5fa", i: i2 },
+            { x: 400, label: "R₃", val: r3, color: "#f87171", i: i3 }
+          ].map((res) => (
+            <g key={res.label}>
+              <rect x={res.x} y="68" width="80" height="24" fill="#1e293b" stroke={res.color} strokeWidth="2" rx="4" />
+              <text x={res.x + 40} y="84" fill={res.color} fontSize="11" textAnchor="middle" fontWeight="bold">{res.label}={res.val}Ω</text>
+              <text x={res.x + 40} y="60" fill="#94a3b8" fontSize="10" textAnchor="middle">I={res.i}A</text>
+            </g>
           ))}
         </>
       ) : (
         <>
-          {/* Battery */}
-          <line x1="40" y1="60" x2="40" y2="240" stroke="#7c3aed" strokeWidth="2"/>
-          <line x1="30" y1="140" x2="50" y2="140" stroke="#f59e0b" strokeWidth="3"/>
-          <line x1="35" y1="155" x2="45" y2="155" stroke="#f59e0b" strokeWidth="2"/>
-          <text x="55" y="152" fill="#f59e0b" fontSize="12">{voltage}V</text>
+          {/* Parallel Rails */}
+          <line x1="100" y1="60" x2="500" y2="60" stroke="#4c1d95" strokeWidth="3" />
+          <line x1="100" y1="240" x2="500" y2="240" stroke="#4c1d95" strokeWidth="3" />
+          {/* Battery Connection */}
+          <line x1="100" y1="60" x2="100" y2="240" stroke="#4c1d95" strokeWidth="2" />
+          <line x1="40" y1="150" x2="100" y2="150" stroke="#4c1d95" strokeWidth="2" />
+          <line x1="30" y1="140" x2="50" y2="140" stroke="#f59e0b" strokeWidth="4" />
+          <line x1="35" y1="155" x2="45" y2="155" stroke="#f59e0b" strokeWidth="2" />
+          <text x="35" y="130" fill="#f59e0b" fontSize="14" textAnchor="middle" fontWeight="bold">{voltage}V</text>
 
-          {/* Top rail */}
-          <line x1="40" y1="60" x2="560" y2="60" stroke="#7c3aed" strokeWidth="2"/>
-          {/* Bottom rail */}
-          <line x1="40" y1="240" x2="560" y2="240" stroke="#7c3aed" strokeWidth="2"/>
-
-          {/* R1 branch */}
-          <line x1="160" y1="60" x2="160" y2="100" stroke="#7c3aed" strokeWidth="2"/>
-          <rect x="120" y="100" width="80" height="24" fill="#1e293b" stroke="#34d399" strokeWidth="2" rx="4"/>
-          <text x="160" y="116" fill="#34d399" fontSize="11" textAnchor="middle">R₁={r1}Ω</text>
-          <line x1="160" y1="124" x2="160" y2="240" stroke="#7c3aed" strokeWidth="2"/>
-          <text x="160" y="90" fill="#94a3b8" fontSize="10" textAnchor="middle">I={i1}A</text>
-
-          {/* R2 branch */}
-          <line x1="300" y1="60" x2="300" y2="100" stroke="#7c3aed" strokeWidth="2"/>
-          <rect x="260" y="100" width="80" height="24" fill="#1e293b" stroke="#60a5fa" strokeWidth="2" rx="4"/>
-          <text x="300" y="116" fill="#60a5fa" fontSize="11" textAnchor="middle">R₂={r2}Ω</text>
-          <line x1="300" y1="124" x2="300" y2="240" stroke="#7c3aed" strokeWidth="2"/>
-          <text x="300" y="90" fill="#94a3b8" fontSize="10" textAnchor="middle">I={i2}A</text>
-
-          {/* R3 branch */}
-          <line x1="440" y1="60" x2="440" y2="100" stroke="#7c3aed" strokeWidth="2"/>
-          <rect x="400" y="100" width="80" height="24" fill="#1e293b" stroke="#f87171" strokeWidth="2" rx="4"/>
-          <text x="440" y="116" fill="#f87171" fontSize="11" textAnchor="middle">R₃={r3}Ω</text>
-          <line x1="440" y1="124" x2="440" y2="240" stroke="#7c3aed" strokeWidth="2"/>
-          <text x="440" y="90" fill="#94a3b8" fontSize="10" textAnchor="middle">I={i3}A</text>
+          {/* Branches */}
+          {[
+            { x: 200, label: "R₁", val: r1, color: "#34d399", i: i1 },
+            { x: 300, label: "R₂", val: r2, color: "#60a5fa", i: i2 },
+            { x: 400, label: "R₃", val: r3, color: "#f87171", i: i3 }
+          ].map((res) => (
+            <g key={res.label}>
+              <line x1={res.x} y1="60" x2={res.x} y2="110" stroke="#4c1d95" strokeWidth="2" />
+              <rect x={res.x - 40} y="110" width="80" height="24" fill="#1e293b" stroke={res.color} strokeWidth="2" rx="4" />
+              <text x={res.x} y="126" fill={res.color} fontSize="11" textAnchor="middle" fontWeight="bold">{res.label}={res.val}Ω</text>
+              <line x1={res.x} y1="134" x2={res.x} y2="240" stroke="#4c1d95" strokeWidth="2" />
+              <text x={res.x + 5} y="90" fill="#94a3b8" fontSize="10" transform={`rotate(90, ${res.x}, 90)`}>I={res.i}A</text>
+            </g>
+          ))}
         </>
       )}
     </svg>
   );
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-4">
+    <div className="min-h-screen bg-gray-950 text-slate-200 p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate("/lab")}
-            className="w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center hover:bg-gray-700"
-          >←</button>
-          <h1 className="text-xl font-bold">Resistors in Series & Parallel ⚡</h1>
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <button onClick={() => navigate("/lab")} className="p-2 bg-gray-900 rounded-full border border-gray-800 hover:bg-gray-800 transition-colors">←</button>
+          <h1 className="text-2xl font-black tracking-tight">Circuit Lab ⚡</h1>
         </div>
-        <span className="text-xs bg-purple-900 text-purple-300 px-3 py-1 rounded-full border border-purple-700">
-          CBSE CLASS 10 PHYSICS
-        </span>
+        <div className="px-4 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-bold uppercase tracking-widest">
+          CBSE Class 10 Physics
+        </div>
       </div>
 
-      {/* Main Layout */}
-      <div className="flex gap-4 mb-4">
-        {/* Left Controls */}
-        <div className="w-1/3 flex flex-col gap-4">
-          <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-            <h2 className="text-sm font-semibold text-purple-400 mb-4">⚙️ Controls</h2>
-
-            {/* Mode */}
-            <div className="mb-4">
-              <p className="text-sm text-gray-400 mb-2">Connection Type</p>
-              <div className="flex gap-2">
-                {["series", "parallel"].map((m) => (
-                  <button
-                    key={m}
-                    onClick={() => setMode(m)}
-                    className={`flex-1 py-2 rounded-lg text-sm font-medium capitalize ${
-                      mode === m
-                        ? "bg-purple-600 text-white"
-                        : "bg-gray-800 text-gray-400 hover:bg-gray-700"
-                    }`}
-                  >{m}</button>
-                ))}
-              </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Controls */}
+        <div className="space-y-6">
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+            <h2 className="text-xs font-black text-gray-500 uppercase tracking-widest mb-6">Simulation Setup</h2>
+            
+            <div className="flex p-1 bg-gray-950 rounded-xl mb-6 border border-gray-800">
+              {["series", "parallel"].map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setMode(m)}
+                  className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+                    mode === m ? "bg-purple-600 text-white shadow-lg shadow-purple-900/20" : "text-gray-500 hover:text-gray-300"
+                  }`}
+                >{m}</button>
+              ))}
             </div>
 
-            {/* Voltage */}
-            <div className="mb-3">
-              <div className="flex justify-between mb-1">
-                <span className="text-sm text-gray-400">Voltage (V)</span>
-                <span className="text-sm font-bold text-yellow-400 bg-yellow-900/40 px-2 py-0.5 rounded">{voltage}V</span>
-              </div>
-              <input type="range" min="1" max="24" value={voltage}
-                onChange={(e) => setVoltage(Number(e.target.value))}
-                className="w-full accent-yellow-500"/>
-            </div>
-
-            {/* R1 */}
-            <div className="mb-3">
-              <div className="flex justify-between mb-1">
-                <span className="text-sm text-gray-400">R₁</span>
-                <span className="text-sm font-bold text-green-400 bg-green-900/40 px-2 py-0.5 rounded">{r1}Ω</span>
-              </div>
-              <input type="range" min="1" max="100" value={r1}
-                onChange={(e) => setR1(Number(e.target.value))}
-                className="w-full accent-green-500"/>
-            </div>
-
-            {/* R2 */}
-            <div className="mb-3">
-              <div className="flex justify-between mb-1">
-                <span className="text-sm text-gray-400">R₂</span>
-                <span className="text-sm font-bold text-blue-400 bg-blue-900/40 px-2 py-0.5 rounded">{r2}Ω</span>
-              </div>
-              <input type="range" min="1" max="100" value={r2}
-                onChange={(e) => setR2(Number(e.target.value))}
-                className="w-full accent-blue-500"/>
-            </div>
-
-            {/* R3 */}
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-sm text-gray-400">R₃</span>
-                <span className="text-sm font-bold text-red-400 bg-red-900/40 px-2 py-0.5 rounded">{r3}Ω</span>
-              </div>
-              <input type="range" min="1" max="100" value={r3}
-                onChange={(e) => setR3(Number(e.target.value))}
-                className="w-full accent-red-500"/>
+            <div className="space-y-6">
+              <ControlSlider label="Voltage" unit="V" val={voltage} min={1} max={24} color="amber" onChange={setVoltage} />
+              <ControlSlider label="Resistor R₁" unit="Ω" val={r1} min={1} max={100} color="emerald" onChange={setR1} />
+              <ControlSlider label="Resistor R₂" unit="Ω" val={r2} min={1} max={100} color="blue" onChange={setR2} />
+              <ControlSlider label="Resistor R₃" unit="Ω" val={r3} min={1} max={100} color="red" onChange={setR3} />
             </div>
           </div>
 
-          {/* Formula Box */}
-          <div className="bg-purple-950/50 rounded-xl p-4 border border-purple-800">
-            <p className="text-xs text-purple-400 font-semibold mb-2">
-              {mode === "series" ? "SERIES FORMULA" : "PARALLEL FORMULA"}
-            </p>
-            <p className="font-mono text-sm text-center text-purple-300">
-              {mode === "series" ? "R = R₁ + R₂ + R₃" : "1/R = 1/R₁ + 1/R₂ + 1/R₃"}
-            </p>
-            <p className="text-white font-bold text-center mt-2">
-              R = {totalR.toFixed(2)} Ω
-            </p>
+          <div className="bg-purple-500/5 border border-purple-500/20 rounded-2xl p-6">
+            <h3 className="text-[10px] font-black text-purple-400 uppercase tracking-widest mb-4">Effective Resistance</h3>
+            <div className="font-mono text-center">
+              <p className="text-gray-500 text-xs mb-2">
+                {mode === "series" ? "Rₛ = R₁ + R₂ + R₃" : "1/Rₚ = 1/R₁ + 1/R₂ + 1/R₃"}
+              </p>
+              <p className="text-2xl font-black text-white">{totalR.toFixed(2)} Ω</p>
+            </div>
           </div>
         </div>
 
-        {/* Right - Circuit */}
-        <div className="w-2/3 bg-gray-900 rounded-xl border border-gray-800 p-4">
-          <h2 className="text-sm font-semibold text-gray-400 mb-3">
-            Circuit Diagram — {mode === "series" ? "Series" : "Parallel"} Connection
-          </h2>
-          <CircuitDiagram />
+        {/* Visualizer */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-gray-900 border border-gray-800 rounded-[32px] p-6">
+            <CircuitDiagram />
+            
+            <div className="grid grid-cols-3 gap-4 mt-6">
+              <DropCard label="V₁ Drop" val={v1} color="green" map={colorMap} />
+              <DropCard label="V₂ Drop" val={v2} color="blue" map={colorMap} />
+              <DropCard label="V₃ Drop" val={v3} color="red" map={colorMap} />
+            </div>
+          </div>
 
-          {/* Voltage drops */}
-          <div className="grid grid-cols-3 gap-2 mt-3">
-            {[
-              { label: "V₁ across R₁", value: v1, color: "green" },
-              { label: "V₂ across R₂", value: v2, color: "blue" },
-              { label: "V₃ across R₃", value: v3, color: "red" },
-            ].map((item) => (
-              <div key={item.label} className={`bg-${item.color}-900/20 rounded-lg p-2 border border-${item.color}-800`}>
-                <p className="text-xs text-gray-400">{item.label}</p>
-                <p className={`text-lg font-bold text-${item.color}-400`}>{item.value}V</p>
-              </div>
-            ))}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <StatCard label="Total R" val={totalR.toFixed(2)} unit="Ω" color="purple" map={colorMap} />
+            <StatCard label="Total I" val={totalCurrent} unit="A" color="blue" map={colorMap} />
+            <StatCard label="Source V" val={voltage} unit="V" color="yellow" map={colorMap} />
+            <StatCard label="Power Diss." val={(voltage * totalCurrent).toFixed(1)} unit="W" color="red" map={colorMap} />
           </div>
         </div>
       </div>
 
-      {/* 4 Data Cards */}
-      <div className="grid grid-cols-4 gap-3 mb-4">
-        {[
-          { label: "Total Resistance", value: totalR.toFixed(2), unit: "Ω", color: "purple" },
-          { label: "Total Current", value: totalCurrent, unit: "A", color: "blue" },
-          { label: "Voltage", value: voltage, unit: "V", color: "yellow" },
-          { label: "Power", value: (voltage * totalCurrent).toFixed(2), unit: "W", color: "red" },
-        ].map((card) => (
-          <div key={card.label} className="bg-gray-900 rounded-xl p-3 border border-gray-800">
-            <p className="text-xs text-gray-500 mb-1">{card.label}</p>
-            <p className={`text-2xl font-bold text-${card.color}-400`}>
-              {card.value}<span className="text-sm ml-1 text-gray-400">{card.unit}</span>
-            </p>
-          </div>
-        ))}
-      </div>
-
-      {/* Theory + Key Points */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-          <h3 className="font-semibold text-purple-400 mb-3">📖 Theory for CBSE Exam</h3>
-          <p className="text-sm text-gray-300 mb-2">
-            In <strong className="text-white">series</strong> connection, same current flows through all resistors. Total resistance is the sum.
-          </p>
-          <p className="text-sm text-gray-300">
-            In <strong className="text-white">parallel</strong> connection, same voltage across all resistors. Total resistance is less than the smallest.
+      {/* Theory Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+        <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6">
+          <h3 className="text-lg font-bold text-purple-400 mb-4">📖 CBSE Core Concept</h3>
+          
+          <p className="text-sm text-gray-400 leading-relaxed">
+            In <strong>Series</strong>, current is like a single stream; it has no choice but to pass through every resistor. Thus, $I$ is constant. In <strong>Parallel</strong>, the current "splits" at junctions, but the potential difference ($V$) across each branch remains the same as the source.
           </p>
         </div>
-        <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-          <h3 className="font-semibold text-yellow-400 mb-3">💡 Key Points to Remember</h3>
-          <ul className="space-y-2">
-            {[
-              "Series: R_total = R₁ + R₂ + R₃",
-              "Parallel: 1/R = 1/R₁ + 1/R₂ + 1/R₃",
-              "Series: same current, different voltages",
-              "Parallel: same voltage, different currents",
-            ].map((point, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-gray-300">
-                <span className="w-5 h-5 rounded-full bg-gray-800 flex items-center justify-center text-xs text-yellow-400 shrink-0 mt-0.5">{i + 1}</span>
-                {point}
-              </li>
-            ))}
+        <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6">
+          <h3 className="text-lg font-bold text-amber-500 mb-4">💡 Exam Tips</h3>
+          <ul className="space-y-3 text-sm text-gray-400">
+            <li className="flex gap-2"><span className="text-amber-500 font-bold">1.</span> Parallel total resistance is <i>always</i> smaller than the smallest individual resistor.</li>
+            <li className="flex gap-2"><span className="text-amber-500 font-bold">2.</span> If one component fails in series, the whole circuit breaks.</li>
+            <li className="flex gap-2"><span className="text-amber-500 font-bold">3.</span> Domestic wiring is done in parallel to ensure independent operation.</li>
           </ul>
         </div>
       </div>
     </div>
   );
 };
+
+const ControlSlider = ({ label, unit, val, min, max, color, onChange }) => (
+  <div>
+    <div className="flex justify-between mb-2">
+      <span className="text-xs font-bold text-gray-500 uppercase">{label}</span>
+      <span className={`text-sm font-mono font-bold text-${color}-400`}>{val}{unit}</span>
+    </div>
+    <input
+      type="range" min={min} max={max} value={val}
+      onChange={(e) => onChange(Number(e.target.value))}
+      className="w-full h-1.5 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-purple-500"
+    />
+  </div>
+);
+
+const DropCard = ({ label, val, color, map }) => (
+  <div className={`${map[color].bg} ${map[color].border} border rounded-xl p-3`}>
+    <p className="text-[10px] text-gray-500 uppercase font-bold mb-1">{label}</p>
+    <p className={`text-lg font-black ${map[color].text}`}>{val}V</p>
+  </div>
+);
+
+const StatCard = ({ label, val, unit, color, map }) => (
+  <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4">
+    <p className="text-[10px] text-gray-500 uppercase font-black mb-2">{label}</p>
+    <p className={`text-xl font-black ${map[color].text}`}>
+      {val}<span className="text-xs ml-1 opacity-50">{unit}</span>
+    </p>
+  </div>
+);
 
 export default ResistorsSeries;

@@ -15,6 +15,14 @@ const RefractionPrism = () => {
     quartz: { n: 1.46, color: "#86efac", label: "Quartz (n=1.46)" },
   };
 
+  const colorMap = {
+    blue: "text-blue-400 border-blue-500/20 bg-blue-500/5",
+    green: "text-emerald-400 border-emerald-500/20 bg-emerald-500/5",
+    purple: "text-purple-400 border-purple-500/20 bg-purple-500/5",
+    yellow: "text-amber-400 border-amber-500/20 bg-amber-500/5",
+  };
+
+  // Physics Calculations
   const n = materials[material].n;
   const A = angle;
   const i1 = incidence;
@@ -34,264 +42,202 @@ const RefractionPrism = () => {
 
     const cx = W / 2;
     const cy = H / 2 + 30;
-    const size = 120;
+    const size = 130;
 
-    // Prism vertices
+    // Prism Geometry
     const top = { x: cx, y: cy - size };
-    const left = { x: cx - size * Math.tan(angle * Math.PI / 360), y: cy + size * 0.3 };
-    const right = { x: cx + size * Math.tan(angle * Math.PI / 360), y: cy + size * 0.3 };
+    const baseWidth = 2 * size * Math.tan((angle / 2) * (Math.PI / 180));
+    const left = { x: cx - baseWidth / 2, y: cy + 20 };
+    const right = { x: cx + baseWidth / 2, y: cy + 20 };
 
-    // Draw prism
+    // 1. Draw Prism
     ctx.beginPath();
     ctx.moveTo(top.x, top.y);
     ctx.lineTo(left.x, left.y);
     ctx.lineTo(right.x, right.y);
     ctx.closePath();
-    ctx.fillStyle = materials[material].color + "33";
+    ctx.fillStyle = materials[material].color + "22";
     ctx.fill();
     ctx.strokeStyle = materials[material].color;
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // 2. Incident Ray
+    const midLeft = { x: (top.x + left.x) / 2, y: (top.y + left.y) / 2 };
+    const faceAngle = Math.atan2(left.y - top.y, left.x - top.x);
+    const normalAngle = faceAngle + Math.PI / 2;
+    const rayAngle = normalAngle - (i1 * Math.PI / 180);
+
+    ctx.beginPath();
+    ctx.moveTo(midLeft.x - Math.cos(rayAngle) * 150, midLeft.y - Math.sin(rayAngle) * 150);
+    ctx.lineTo(midLeft.x, midLeft.y);
+    ctx.strokeStyle = "#fbbf24";
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
-    // Angle label
-    ctx.fillStyle = "#fbbf24";
-    ctx.font = "13px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText(`A=${angle}°`, top.x, top.y - 10);
-
-    // Incident ray
-    const leftMidX = (top.x + left.x) / 2;
-    const leftMidY = (top.y + left.y) / 2;
-    const incRad = (90 - incidence) * Math.PI / 180;
+    // Normal Line 1
+    ctx.setLineDash([5, 5]);
+    ctx.strokeStyle = "rgba(255,255,255,0.3)";
     ctx.beginPath();
-    ctx.moveTo(leftMidX - Math.cos(incRad) * 120, leftMidY - Math.sin(incRad) * 120);
-    ctx.lineTo(leftMidX, leftMidY);
-    ctx.strokeStyle = "#fbbf24";
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    // Normal at entry
-    const normAngle = Math.atan2(left.y - top.y, left.x - top.x) + Math.PI / 2;
-    ctx.beginPath();
-    ctx.moveTo(leftMidX - Math.cos(normAngle) * 60, leftMidY - Math.sin(normAngle) * 60);
-    ctx.lineTo(leftMidX + Math.cos(normAngle) * 60, leftMidY + Math.sin(normAngle) * 60);
-    ctx.strokeStyle = "rgba(148,163,184,0.4)";
-    ctx.lineWidth = 1;
-    ctx.setLineDash([4, 4]);
+    ctx.moveTo(midLeft.x - Math.cos(normalAngle) * 60, midLeft.y - Math.sin(normalAngle) * 60);
+    ctx.lineTo(midLeft.x + Math.cos(normalAngle) * 60, midLeft.y + Math.sin(normalAngle) * 60);
     ctx.stroke();
     ctx.setLineDash([]);
 
     if (i2 !== "TIR") {
-      // Refracted ray inside prism
-      const r1Rad = parseFloat(r1) * Math.PI / 180;
-      const insideAngle = normAngle - r1Rad;
-      const rightMidX = (top.x + right.x) / 2;
-      const rightMidY = (top.y + right.y) / 2;
-
+      // 3. Refracted Ray (Inside)
+      const midRight = { x: (top.x + right.x) / 2, y: (top.y + right.y) / 2 };
       ctx.beginPath();
-      ctx.moveTo(leftMidX, leftMidY);
-      ctx.lineTo(rightMidX, rightMidY);
-      ctx.strokeStyle = materials[material].color;
-      ctx.lineWidth = 2;
+      ctx.moveTo(midLeft.x, midLeft.y);
+      ctx.lineTo(midRight.x, midRight.y);
+      ctx.strokeStyle = "#fff";
+      ctx.globalAlpha = 0.6;
       ctx.stroke();
+      ctx.globalAlpha = 1;
 
-      // Emergent ray - dispersion effect
-      const colors = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#3b82f6", "#8b5cf6", "#ec4899"];
-      colors.forEach((color, idx) => {
-        const spread = (idx - 3) * 3;
-        const exitAngle = Math.atan2(right.y - top.y, right.x - top.x) - Math.PI / 2;
-        const emergentAngle = exitAngle + (parseFloat(i2) + spread) * Math.PI / 180;
+      // 4. Emergent Rays (Dispersion)
+      const exitFaceAngle = Math.atan2(right.y - top.y, right.x - top.x);
+      const exitNormalAngle = exitFaceAngle - Math.PI / 2;
+      const spectrum = ["#ef4444", "#fbbf24", "#22c55e", "#3b82f6", "#a855f7"];
+      
+      spectrum.forEach((color, idx) => {
+        const dispersionShift = (idx - 2) * 2; 
+        const exitRayAngle = exitNormalAngle + (parseFloat(i2) + dispersionShift) * Math.PI / 180;
         ctx.beginPath();
-        ctx.moveTo(rightMidX, rightMidY);
-        ctx.lineTo(
-          rightMidX + Math.cos(emergentAngle) * 130,
-          rightMidY + Math.sin(emergentAngle) * 130
-        );
+        ctx.moveTo(midRight.x, midRight.y);
+        ctx.lineTo(midRight.x + Math.cos(exitRayAngle) * 150, midRight.y + Math.sin(exitRayAngle) * 150);
         ctx.strokeStyle = color;
-        ctx.lineWidth = 1.5;
-        ctx.globalAlpha = 0.8;
+        ctx.lineWidth = 2;
         ctx.stroke();
-        ctx.globalAlpha = 1;
       });
 
-      // Labels
-      ctx.fillStyle = "#fbbf24";
-      ctx.font = "11px monospace";
-      ctx.textAlign = "left";
-      ctx.fillText(`i=${i1}°`, leftMidX - 110, leftMidY - 20);
-      ctx.fillStyle = materials[material].color;
-      ctx.fillText(`r₁=${r1}°`, leftMidX + 10, leftMidY + 20);
-      ctx.fillText(`r₂=${r2}°`, rightMidX - 50, rightMidY - 10);
+      // Normal Line 2
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(midRight.x - Math.cos(exitNormalAngle) * 60, midRight.y - Math.sin(exitNormalAngle) * 60);
+      ctx.lineTo(midRight.x + Math.cos(exitNormalAngle) * 60, midRight.y + Math.sin(exitNormalAngle) * 60);
+      ctx.stroke();
+      ctx.setLineDash([]);
     } else {
-      // TIR label
-      ctx.fillStyle = "#ef4444";
-      ctx.font = "bold 14px monospace";
+      // Handle TIR Visualization
+      ctx.fillStyle = "#f87171";
+      ctx.font = "bold 16px Inter";
       ctx.textAlign = "center";
-      ctx.fillText("Total Internal Reflection!", cx, cy + 80);
+      ctx.fillText("TOTAL INTERNAL REFLECTION", cx, cy + 80);
     }
 
-    // Material label
-    ctx.fillStyle = materials[material].color;
-    ctx.font = "12px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText(materials[material].label, cx, cy + size * 0.3 + 25);
-
-  }, [angle, incidence, material]);
+  }, [angle, incidence, material, i2, i1]);
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-4">
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate("/lab")}
-            className="w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center hover:bg-gray-700"
-          >←</button>
-          <h1 className="text-xl font-bold">Refraction through Prism 🔺</h1>
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <button onClick={() => navigate("/lab")} className="p-2 bg-slate-900 rounded-full border border-white/10">←</button>
+          <h1 className="text-2xl font-black tracking-tight">Prism Lab 🔺</h1>
         </div>
-        <span className="text-xs bg-purple-900 text-purple-300 px-3 py-1 rounded-full border border-purple-700">
-          CBSE CLASS 12 PHYSICS
-        </span>
+        <div className="px-4 py-1 bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-bold rounded-full tracking-widest uppercase">CBSE Physics Class 12</div>
       </div>
 
-      {/* Main Layout */}
-      <div className="flex gap-4 mb-4">
-        {/* Left Controls */}
-        <div className="w-1/3 flex flex-col gap-4">
-          <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-            <h2 className="text-sm font-semibold text-purple-400 mb-4">⚙️ Controls</h2>
-
-            {/* Material */}
-            <div className="mb-4">
-              <p className="text-sm text-gray-400 mb-2">Prism Material</p>
-              <div className="grid grid-cols-2 gap-2">
-                {Object.entries(materials).map(([key, val]) => (
-                  <button
-                    key={key}
-                    onClick={() => setMaterial(key)}
-                    className={`py-2 rounded-lg text-xs font-medium capitalize ${
-                      material === key
-                        ? "bg-purple-600 text-white"
-                        : "bg-gray-800 text-gray-400 hover:bg-gray-700"
-                    }`}
-                  >{key}</button>
-                ))}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        {/* Controls */}
+        <div className="space-y-4">
+          <div className="bg-slate-900/50 border border-white/5 rounded-3xl p-6">
+            <h2 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-6">Simulation Settings</h2>
+            
+            <div className="space-y-6">
+              <div>
+                <p className="text-xs font-bold text-slate-400 mb-3 uppercase">Material</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {Object.entries(materials).map(([key]) => (
+                    <button key={key} onClick={() => setMaterial(key)} className={`py-2 rounded-xl text-xs font-bold capitalize transition-all ${material === key ? "bg-purple-600 shadow-lg shadow-purple-500/20" : "bg-slate-800 hover:bg-slate-700 text-slate-400"}`}>{key}</button>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            {/* Prism Angle */}
-            <div className="mb-4">
-              <div className="flex justify-between mb-1">
-                <span className="text-sm text-gray-400">Prism Angle (A)</span>
-                <span className="text-sm font-bold text-yellow-400 bg-yellow-900/40 px-2 py-0.5 rounded">
-                  {angle}°
-                </span>
+              <div>
+                <div className="flex justify-between mb-2">
+                  <span className="text-xs font-bold text-slate-400 uppercase">Prism Angle (A)</span>
+                  <span className="text-sm font-mono text-amber-400 font-bold">{angle}°</span>
+                </div>
+                <input type="range" min="30" max="90" value={angle} onChange={(e) => setAngle(Number(e.target.value))} className="w-full accent-amber-500 bg-slate-800 h-1.5 rounded-lg appearance-none" />
               </div>
-              <input type="range" min="30" max="90" value={angle}
-                onChange={(e) => setAngle(Number(e.target.value))}
-                className="w-full accent-yellow-500"/>
-            </div>
 
-            {/* Angle of Incidence */}
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-sm text-gray-400">Angle of Incidence (i)</span>
-                <span className="text-sm font-bold text-blue-400 bg-blue-900/40 px-2 py-0.5 rounded">
-                  {incidence}°
-                </span>
+              <div>
+                <div className="flex justify-between mb-2">
+                  <span className="text-xs font-bold text-slate-400 uppercase">Incidence (i₁)</span>
+                  <span className="text-sm font-mono text-sky-400 font-bold">{incidence}°</span>
+                </div>
+                <input type="range" min="10" max="85" value={incidence} onChange={(e) => setIncidence(Number(e.target.value))} className="w-full accent-sky-500 bg-slate-800 h-1.5 rounded-lg appearance-none" />
               </div>
-              <input type="range" min="10" max="85" value={incidence}
-                onChange={(e) => setIncidence(Number(e.target.value))}
-                className="w-full accent-blue-500"/>
             </div>
           </div>
 
-          {/* Snell's Law */}
-          <div className="bg-purple-950/50 rounded-xl p-4 border border-purple-800">
-            <p className="text-xs text-purple-400 font-semibold mb-2">SNELL'S LAW</p>
-            <p className="font-mono text-sm text-center text-purple-300 mb-2">
-              n₁ sin i = n₂ sin r
-            </p>
-            <div className="text-xs text-gray-400 space-y-1 font-mono">
-              <p>n = {n}</p>
-              <p>r₁ = {r1}°</p>
-              <p>r₂ = {r2}°</p>
-              <p>i₂ = {i2}{i2 !== "TIR" ? "°" : ""}</p>
-              <p className="text-white font-bold">δ = {deviation}{deviation !== "TIR" ? "°" : ""}</p>
+          <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-3xl p-6">
+            <h3 className="text-[10px] font-black text-indigo-400 uppercase mb-4 tracking-tighter">Mathematical Proof</h3>
+            <div className="space-y-2 font-mono text-xs">
+              <div className="flex justify-between"><span className="text-slate-500">n₁ sin i₁ = n₂ sin r₁</span> <span className="text-indigo-300">r₁ = {r1}°</span></div>
+              <div className="flex justify-between"><span className="text-slate-500">r₁ + r₂ = A</span> <span className="text-indigo-300">r₂ = {r2}°</span></div>
+              <div className="flex justify-between text-white font-bold border-t border-white/5 pt-2 mt-2"><span>δ = i₁ + i₂ - A</span> <span>δ = {deviation}°</span></div>
             </div>
           </div>
         </div>
 
-        {/* Right - Diagram */}
-        <div className="w-2/3 bg-gray-900 rounded-xl border border-gray-800 p-4">
-          <h2 className="text-sm font-semibold text-gray-400 mb-3">Ray Diagram</h2>
-          <canvas
-            ref={canvasRef}
-            width={600}
-            height={320}
-            className="w-full rounded-lg bg-gray-950"
-          />
-          <div className="flex gap-4 mt-2 text-xs">
-            <span className="flex items-center gap-1">
-              <span className="w-3 h-1 bg-yellow-400 inline-block"></span> Incident ray
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="w-3 h-1 inline-block" style={{backgroundColor: materials[material].color}}></span> Refracted ray
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="w-8 h-3 inline-block rounded" style={{background: "linear-gradient(to right, red, orange, yellow, green, blue, violet)"}}></span> Dispersion
-            </span>
+        {/* Animation */}
+        <div className="lg:col-span-2 bg-slate-900 border border-white/5 rounded-[40px] p-6 shadow-2xl overflow-hidden relative">
+          <div className="absolute top-8 left-8">
+             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Ray Diagram Visualizer</span>
           </div>
+          <canvas ref={canvasRef} width={700} height={400} className="w-full h-full bg-slate-950 rounded-[32px]" />
         </div>
       </div>
 
-      {/* 4 Data Cards */}
-      <div className="grid grid-cols-4 gap-3 mb-4">
-        {[
-          { label: "Angle of Refraction r₁", value: r1, unit: "°", color: "blue" },
-          { label: "Emergent Angle i₂", value: i2, unit: i2 !== "TIR" ? "°" : "", color: "green" },
-          { label: "Angle of Deviation", value: deviation, unit: deviation !== "TIR" ? "°" : "", color: "purple" },
-          { label: "Critical Angle", value: criticalAngle, unit: "°", color: "yellow" },
-        ].map((card) => (
-          <div key={card.label} className="bg-gray-900 rounded-xl p-3 border border-gray-800">
-            <p className="text-xs text-gray-500 mb-1">{card.label}</p>
-            <p className={`text-xl font-bold text-${card.color}-400`}>
-              {card.value}<span className="text-sm ml-1 text-gray-400">{card.unit}</span>
-            </p>
-          </div>
-        ))}
+      {/* Data Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <StatCard label="Refraction (r₁)" value={r1} unit="°" theme={colorMap.blue} />
+        <StatCard label="Emergent (i₂)" value={i2} unit={i2 !== "TIR" ? "°" : ""} theme={colorMap.green} />
+        <StatCard label="Deviation (δ)" value={deviation} unit={deviation !== "TIR" ? "°" : ""} theme={colorMap.purple} />
+        <StatCard label="Critical Angle" value={criticalAngle} unit="°" theme={colorMap.yellow} />
       </div>
 
-      {/* Theory + Key Points */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-          <h3 className="font-semibold text-purple-400 mb-3">📖 Theory for CBSE Exam</h3>
-          <p className="text-sm text-gray-300 mb-2">
-            When light passes through a prism it undergoes <strong className="text-white">refraction</strong> at both surfaces. White light splits into spectrum due to <strong className="text-white">dispersion</strong>.
+      {/* Theory & Visual Aids */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-slate-900/40 border border-white/5 rounded-3xl p-8">
+          <h3 className="text-lg font-bold text-indigo-400 mb-4">📖 Prism Theory</h3>
+          
+          <p className="text-sm text-slate-400 leading-relaxed mb-4">
+            A prism is a transparent refracting medium bounded by two plane surfaces inclined at an angle. The most important relationship is:
           </p>
-          <div className="bg-gray-950 rounded-lg p-3 font-mono text-center text-sm">
-            <span className="text-purple-400">δ = i₁ + i₂ - A</span>
+          <div className="bg-slate-950 p-4 rounded-2xl text-center font-mono text-purple-400 text-lg border border-purple-500/20">
+            n = sin((A + δₘ)/2) / sin(A/2)
           </div>
         </div>
-        <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-          <h3 className="font-semibold text-yellow-400 mb-3">💡 Key Points to Remember</h3>
-          <ul className="space-y-2">
-            {[
-              "Minimum deviation: i₁ = i₂ and r₁ = r₂ = A/2",
-              "Dispersion: violet deviates most, red deviates least",
-              "Critical angle: sin C = 1/n",
-              "TIR occurs when angle > critical angle",
-            ].map((point, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-gray-300">
-                <span className="w-5 h-5 rounded-full bg-gray-800 flex items-center justify-center text-xs text-yellow-400 shrink-0 mt-0.5">{i + 1}</span>
-                {point}
-              </li>
-            ))}
+
+        <div className="bg-slate-900/40 border border-white/5 rounded-3xl p-8">
+          <h3 className="text-lg font-bold text-amber-500 mb-4">💡 Dispersion Facts</h3>
+          [Image showing dispersion of white light through a prism into a rainbow spectrum]
+          <ul className="space-y-4">
+            <li className="flex gap-3 text-sm text-slate-400">
+              <span className="text-amber-500 font-black">01.</span> Violet light has the shortest wavelength and deviates the <b>most</b>.
+            </li>
+            <li className="flex gap-3 text-sm text-slate-400">
+              <span className="text-amber-500 font-black">02.</span> Red light has the longest wavelength and deviates the <b>least</b>.
+            </li>
+            <li className="flex gap-3 text-sm text-slate-400">
+              <span className="text-amber-500 font-black">03.</span> Cauchy's formula explains why <i>n</i> depends on wavelength.
+            </li>
           </ul>
         </div>
       </div>
     </div>
   );
 };
+
+const StatCard = ({ label, value, unit, theme }) => (
+  <div className={`border rounded-2xl p-6 transition-all hover:scale-[1.02] ${theme}`}>
+    <p className="text-[10px] font-black uppercase tracking-tighter opacity-60 mb-2">{label}</p>
+    <div className="text-2xl font-black">{value}<span className="text-sm ml-1 opacity-40 font-normal">{unit}</span></div>
+  </div>
+);
 
 export default RefractionPrism;
