@@ -30,6 +30,7 @@ const CellDivision = () => {
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext("2d");
     const W = canvas.width;
     const H = canvas.height;
@@ -127,7 +128,6 @@ const CellDivision = () => {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white pb-20">
-      {/* Navbar */}
       <nav className="sticky top-0 z-50 border-b border-white/10 bg-gray-950/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -143,8 +143,8 @@ const CellDivision = () => {
 
       <div className="max-w-7xl mx-auto px-4 pt-6">
 
-        {/* Animation — FIRST on mobile */}
-        <div className="w-full bg-gray-900 rounded-xl border border-gray-800 p-4 mb-6 lg:hidden">
+        {/* Canvas — always in DOM, single ref */}
+        <div className="w-full bg-gray-900 rounded-xl border border-gray-800 p-4 mb-6">
           <h2 className="text-sm font-semibold text-gray-400 mb-3">Cell Division Animation</h2>
           <canvas ref={canvasRef} width={600} height={320} className="w-full rounded-lg bg-gray-950" />
           <div className="mt-3 p-3 rounded-lg text-sm"
@@ -154,10 +154,8 @@ const CellDivision = () => {
           </div>
         </div>
 
-        {/* Main Layout */}
+        {/* Controls */}
         <div className="flex flex-col lg:flex-row gap-4 mb-6">
-
-          {/* Left Controls */}
           <div className="w-full lg:w-1/3 flex flex-col gap-4">
             <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
               <h2 className="text-sm font-semibold text-purple-400 mb-4">⚙️ Phase Controls</h2>
@@ -177,33 +175,24 @@ const CellDivision = () => {
             </div>
           </div>
 
-          {/* Animation — desktop only */}
-          <div className="hidden lg:block w-full lg:w-2/3 bg-gray-900 rounded-xl border border-gray-800 p-4">
-            <h2 className="text-sm font-semibold text-gray-400 mb-3">Cell Division Animation</h2>
-            <canvas ref={canvasRef} width={600} height={320} className="w-full rounded-lg bg-gray-950" />
-            <div className="mt-3 p-3 rounded-lg text-sm"
-              style={{ backgroundColor: PHASES[phase].color + "22", borderLeft: `3px solid ${PHASES[phase].color}` }}>
-              <span className="font-bold" style={{ color: PHASES[phase].color }}>{PHASES[phase].name}:</span>
-              <span className="text-gray-300 ml-2">{PHASES[phase].description}</span>
+          {/* Data Cards */}
+          <div className="w-full lg:w-2/3">
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: "Current Phase", value: PHASES[phase].name, unit: "", color: "purple" },
+                { label: "Phase Number", value: `${phase + 1}/6`, unit: "", color: "blue" },
+                { label: "Division Type", value: "Mitosis", unit: "", color: "green" },
+                { label: "Daughter Cells", value: phase === 5 ? "2" : "0", unit: "", color: "yellow" },
+              ].map((card) => (
+                <div key={card.label} className="bg-gray-900 rounded-xl p-3 border border-gray-800">
+                  <p className="text-xs text-gray-500 mb-1">{card.label}</p>
+                  <p className={`text-xl font-bold text-${card.color}-400`}>
+                    {card.value}<span className="text-sm ml-1 text-gray-400">{card.unit}</span>
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
-
-        {/* Data Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-          {[
-            { label: "Current Phase", value: PHASES[phase].name, unit: "", color: "purple" },
-            { label: "Phase Number", value: `${phase + 1}/6`, unit: "", color: "blue" },
-            { label: "Division Type", value: "Mitosis", unit: "", color: "green" },
-            { label: "Daughter Cells", value: phase === 5 ? "2" : "0", unit: "", color: "yellow" },
-          ].map((card) => (
-            <div key={card.label} className="bg-gray-900 rounded-xl p-3 border border-gray-800">
-              <p className="text-xs text-gray-500 mb-1">{card.label}</p>
-              <p className={`text-xl font-bold text-${card.color}-400`}>
-                {card.value}<span className="text-sm ml-1 text-gray-400">{card.unit}</span>
-              </p>
-            </div>
-          ))}
         </div>
 
         {/* Theory + Key Points */}

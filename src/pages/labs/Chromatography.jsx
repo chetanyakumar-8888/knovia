@@ -35,7 +35,6 @@ const Chromatography = () => {
   const [mixture, setMixture] = useState(0);
   const [solventHeight, setSolventHeight] = useState(0);
   const [running, setRunning] = useState(false);
-  const [selectedComp, setSelectedComp] = useState(null);
 
   const mix = MIXTURES[mixture];
 
@@ -54,6 +53,7 @@ const Chromatography = () => {
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext("2d");
     const W = canvas.width;
     const H = canvas.height;
@@ -155,14 +155,10 @@ const Chromatography = () => {
     }
   }, [solventHeight, mixture]);
 
-  const handleReset = () => {
-    setSolventHeight(0);
-    setRunning(false);
-  };
+  const handleReset = () => { setSolventHeight(0); setRunning(false); };
 
   return (
     <div className="min-h-screen bg-gray-950 text-white pb-20">
-      {/* Navbar */}
       <nav className="sticky top-0 z-50 border-b border-white/10 bg-gray-950/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -178,16 +174,14 @@ const Chromatography = () => {
 
       <div className="max-w-7xl mx-auto px-4 pt-6">
 
-        {/* Animation — FIRST on mobile */}
-        <div className="w-full bg-gray-900 rounded-xl border border-gray-800 p-4 mb-6 lg:hidden">
+        {/* Canvas — always in DOM, single ref */}
+        <div className="w-full bg-gray-900 rounded-xl border border-gray-800 p-4 mb-6">
           <h2 className="text-sm font-semibold text-gray-400 mb-3">Paper Chromatography — {mix.name}</h2>
           <canvas ref={canvasRef} width={600} height={320} className="w-full rounded-lg bg-gray-950" />
         </div>
 
-        {/* Main Layout */}
+        {/* Controls */}
         <div className="flex flex-col lg:flex-row gap-4 mb-6">
-
-          {/* Left Controls */}
           <div className="w-full lg:w-1/3 flex flex-col gap-4">
             <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
               <h2 className="text-sm font-semibold text-purple-400 mb-4">⚙️ Controls</h2>
@@ -227,8 +221,6 @@ const Chromatography = () => {
                 </button>
               </div>
             </div>
-
-            {/* Rf Formula */}
             <div className="bg-purple-950/50 rounded-xl p-4 border border-purple-800">
               <p className="text-xs text-purple-400 font-semibold mb-2">Rf VALUE</p>
               <p className="font-mono text-xs text-purple-300 text-center mb-2">Rf = Distance by solute / Distance by solvent</p>
@@ -236,28 +228,24 @@ const Chromatography = () => {
             </div>
           </div>
 
-          {/* Animation — desktop only */}
-          <div className="hidden lg:block w-full lg:w-2/3 bg-gray-900 rounded-xl border border-gray-800 p-4">
-            <h2 className="text-sm font-semibold text-gray-400 mb-3">Paper Chromatography — {mix.name}</h2>
-            <canvas ref={canvasRef} width={600} height={320} className="w-full rounded-lg bg-gray-950" />
-          </div>
-        </div>
-
-        {/* Data Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-          {[
-            { label: "Components", value: mix.components.length, unit: "", color: "purple" },
-            { label: "Solvent Progress", value: solventHeight.toFixed(1), unit: "%", color: "blue" },
-            { label: "Highest Rf", value: Math.max(...mix.components.map(c => c.rf)), unit: "", color: "green" },
-            { label: "Lowest Rf", value: Math.min(...mix.components.map(c => c.rf)), unit: "", color: "yellow" },
-          ].map((card) => (
-            <div key={card.label} className="bg-gray-900 rounded-xl p-3 border border-gray-800">
-              <p className="text-xs text-gray-500 mb-1">{card.label}</p>
-              <p className={`text-2xl font-bold text-${card.color}-400`}>
-                {card.value}<span className="text-sm ml-1 text-gray-400">{card.unit}</span>
-              </p>
+          {/* Data Cards */}
+          <div className="w-full lg:w-2/3">
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: "Components", value: mix.components.length, unit: "", color: "purple" },
+                { label: "Solvent Progress", value: solventHeight.toFixed(1), unit: "%", color: "blue" },
+                { label: "Highest Rf", value: Math.max(...mix.components.map(c => c.rf)), unit: "", color: "green" },
+                { label: "Lowest Rf", value: Math.min(...mix.components.map(c => c.rf)), unit: "", color: "yellow" },
+              ].map((card) => (
+                <div key={card.label} className="bg-gray-900 rounded-xl p-3 border border-gray-800">
+                  <p className="text-xs text-gray-500 mb-1">{card.label}</p>
+                  <p className={`text-2xl font-bold text-${card.color}-400`}>
+                    {card.value}<span className="text-sm ml-1 text-gray-400">{card.unit}</span>
+                  </p>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
 
         {/* Theory + Key Points */}

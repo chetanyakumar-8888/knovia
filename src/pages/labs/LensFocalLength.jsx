@@ -17,6 +17,7 @@ const LensFocalLength = () => {
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext("2d");
     const W = canvas.width;
     const H = canvas.height;
@@ -116,7 +117,6 @@ const LensFocalLength = () => {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white pb-20">
-      {/* Navbar */}
       <nav className="sticky top-0 z-50 border-b border-white/10 bg-gray-950/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -132,8 +132,8 @@ const LensFocalLength = () => {
 
       <div className="max-w-7xl mx-auto px-4 pt-6">
 
-        {/* Ray Diagram — FIRST on mobile */}
-        <div className="w-full bg-gray-900 rounded-xl border border-gray-800 p-4 mb-6 lg:hidden">
+        {/* Canvas — always in DOM, single ref */}
+        <div className="w-full bg-gray-900 rounded-xl border border-gray-800 p-4 mb-6">
           <h2 className="text-sm font-semibold text-gray-400 mb-3">Ray Diagram</h2>
           <canvas ref={canvasRef} width={700} height={320} className="w-full rounded-lg bg-gray-950" />
           <div className="flex flex-wrap gap-3 mt-3 text-xs">
@@ -144,10 +144,8 @@ const LensFocalLength = () => {
           </div>
         </div>
 
-        {/* Main Layout */}
+        {/* Controls */}
         <div className="flex flex-col lg:flex-row gap-4 mb-6">
-
-          {/* Left Controls */}
           <div className="w-full lg:w-1/3 flex flex-col gap-4">
             <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
               <h2 className="text-sm font-semibold text-purple-400 mb-4">⚙️ Controls</h2>
@@ -183,8 +181,6 @@ const LensFocalLength = () => {
                 <div className="flex justify-between text-xs text-gray-600 mt-1"><span>5 cm</span><span>50 cm</span></div>
               </div>
             </div>
-
-            {/* Lens Formula */}
             <div className="bg-purple-950/50 rounded-xl p-4 border border-purple-800">
               <p className="text-xs text-purple-400 font-semibold mb-3">LENS FORMULA</p>
               <div className="font-mono text-center text-sm mb-2">
@@ -198,34 +194,24 @@ const LensFocalLength = () => {
             </div>
           </div>
 
-          {/* Ray Diagram — desktop only */}
-          <div className="hidden lg:block w-full lg:w-2/3 bg-gray-900 rounded-xl border border-gray-800 p-4">
-            <h2 className="text-sm font-semibold text-gray-400 mb-3">Ray Diagram</h2>
-            <canvas ref={canvasRef} width={700} height={320} className="w-full rounded-lg bg-gray-950" />
-            <div className="flex gap-4 mt-2 text-xs">
-              <span className="flex items-center gap-1"><span className="w-3 h-3 bg-yellow-400 rounded-full inline-block"></span> Object</span>
-              <span className="flex items-center gap-1"><span className="w-3 h-3 bg-red-400 rounded-full inline-block"></span> Real Image</span>
-              <span className="flex items-center gap-1"><span className="w-3 h-3 bg-blue-400 rounded-full inline-block"></span> Virtual Image</span>
-              <span className="flex items-center gap-1"><span className="w-3 h-3 bg-green-400 rounded-full inline-block"></span> Focal Point</span>
+          {/* Data Cards */}
+          <div className="w-full lg:w-2/3">
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: "Object Distance", value: objectDistance, unit: "cm", color: "yellow" },
+                { label: "Image Distance", value: imageDistance, unit: "cm", color: "red" },
+                { label: "Magnification", value: magnification, unit: "x", color: "purple" },
+                { label: "Image Type", value: imageType, unit: "", color: "green" },
+              ].map((card) => (
+                <div key={card.label} className="bg-gray-900 rounded-xl p-3 border border-gray-800">
+                  <p className="text-xs text-gray-500 mb-1">{card.label}</p>
+                  <p className={`text-lg font-bold text-${card.color}-400`}>
+                    {card.value}<span className="text-sm ml-1 text-gray-400">{card.unit}</span>
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
-
-        {/* Data Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-          {[
-            { label: "Object Distance", value: objectDistance, unit: "cm", color: "yellow" },
-            { label: "Image Distance", value: imageDistance, unit: "cm", color: "red" },
-            { label: "Magnification", value: magnification, unit: "x", color: "purple" },
-            { label: "Image Type", value: imageType, unit: "", color: "green" },
-          ].map((card) => (
-            <div key={card.label} className="bg-gray-900 rounded-xl p-3 border border-gray-800">
-              <p className="text-xs text-gray-500 mb-1">{card.label}</p>
-              <p className={`text-lg font-bold text-${card.color}-400`}>
-                {card.value}<span className="text-sm ml-1 text-gray-400">{card.unit}</span>
-              </p>
-            </div>
-          ))}
         </div>
 
         {/* Theory + Key Points */}
