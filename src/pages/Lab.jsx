@@ -92,10 +92,9 @@ const Lab = () => {
           </div>
         </div>
 
-        {/* Subject Filter — FIXED for mobile scrolling */}
+        {/* Subject Filter */}
         <div className="flex items-center justify-between border-b border-white/10 pb-6 mb-10 gap-4">
-          <div
-            style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          <div style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             className="flex gap-2 bg-slate-900/50 p-1.5 rounded-full border border-white/5 w-full sm:w-auto">
             {['All', 'Physics', 'Chemistry', 'Biology'].map(sub => (
               <button key={sub} onClick={() => setActiveSubject(sub)}
@@ -116,8 +115,8 @@ const Lab = () => {
           </div>
         </div>
 
-        {/* Lab Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {/* Lab Grid — FIXED for mobile */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredExperiments.map(exp => (
             <div key={exp.id}
               className="group bg-slate-900/40 border border-white/5 rounded-3xl p-6 hover:border-purple-500/30 hover:bg-slate-900/80 transition-all flex flex-col relative overflow-hidden">
